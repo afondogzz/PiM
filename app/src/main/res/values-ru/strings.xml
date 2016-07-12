@@ -5,4 +5,5 @@
     <string name="navigation_drawer_close">Закрыть меню</string>
     <string name="navigation_drawer_open">Открыть меню</string>
     <string name="title_activity_article">Статья</string>
+    <string name="swipe_again">Свайпните еще раз для загрузки старых статей</string>
 </resources>

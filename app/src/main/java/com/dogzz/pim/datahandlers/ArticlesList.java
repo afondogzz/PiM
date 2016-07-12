@@ -33,6 +33,7 @@ public class ArticlesList implements Serializable{
     private List<ArticleHeader> articlesHeaders = new ArrayList<>();
     private int currentPageNumber = 0;
     public static final String BASE_URL = "http://petrimazepa.com";
+    public static final String PATH_URL = "/ajax/articles/%d/12";
     private RecyclerView recyclerView;
     private MyRecyclerAdapter adapter;
     private Activity mainActivity;
@@ -72,7 +73,8 @@ public class ArticlesList implements Serializable{
 
     private void loadArticlesListFromSource() throws SourceConnectException {
             DownloadArticlesListTask downloadTask = new DownloadArticlesListTask();
-            String url = currentPageNumber == 1 ? BASE_URL.concat("/") : BASE_URL.concat("/?page=").concat(String.valueOf(currentPageNumber));
+//            String url = currentPageNumber == 1 ? BASE_URL.concat("/") : BASE_URL.concat("/?page=").concat(String.valueOf(currentPageNumber));
+            String url = BASE_URL.concat(String.format(PATH_URL, (currentPageNumber-1)*12));
             downloadTask.execute(url);
     }
 
@@ -84,9 +86,14 @@ public class ArticlesList implements Serializable{
     private void populateData(Integer result) {
         if (result == 1) {
             try {
-                adapter = new MyRecyclerAdapter(mainActivity, articlesHeaders);
-                recyclerView.setAdapter(adapter);
+                if (adapter == null) {
+                    adapter = new MyRecyclerAdapter(mainActivity, articlesHeaders);
+                    recyclerView.setAdapter(adapter);
+                }
+                int startCount = articlesHeaders.size();
                 articlesHeaders.addAll(extractArticlesHeaders(downloadResult));
+                int endCount = articlesHeaders.size();
+                adapter.notifyItemRangeInserted(startCount - 1, endCount - startCount);
             } catch (Exception e) {
                 Toast.makeText(mainActivity, "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();

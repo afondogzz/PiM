@@ -1,16 +1,11 @@
 package com.dogzz.pim;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.app.FragmentTransaction;
@@ -23,7 +18,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import com.dogzz.pim.datahandlers.ArticlesList;
 import com.dogzz.pim.dataobject.ArticleHeader;
-import com.dogzz.pim.screens.ArticleActivity;
 import com.dogzz.pim.screens.ArticleContentFragment;
 import com.dogzz.pim.screens.ArticlesListFragment;
 import com.dogzz.pim.uihandlers.RecyclerItemClickListener;
@@ -46,16 +40,18 @@ public class MainActivity extends AppCompatActivity
     FragmentTransaction fTrans;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        articlesListFragment = new ArticlesListFragment();
-        fTrans = getSupportFragmentManager().beginTransaction();
-        fTrans.add(R.id.frgmContainer, articlesListFragment);
+//        if (savedInstanceState == null) {
+            articlesListFragment = new ArticlesListFragment();
+            fTrans = getSupportFragmentManager().beginTransaction();
+            fTrans.add(R.id.frgmContainer, articlesListFragment);
 //        fTrans.addToBackStack(null);
-        fTrans.commit();
+            fTrans.commit();
+//        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -159,7 +155,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putInt(PAGES_DISPLAYED, articlesList.getCurrentPageNumber());
+//        savedInstanceState.putInt(PAGES_DISPLAYED, articlesList.getCurrentPageNumber());
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -168,7 +164,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onArticleClicked(String url) {
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
         articleContentFragment = ArticleContentFragment.newInstance(url);
         fTrans = getSupportFragmentManager().beginTransaction();
         fTrans.replace(R.id.frgmContainer, articleContentFragment);
@@ -180,22 +176,4 @@ public class MainActivity extends AppCompatActivity
     public void onFragmentInteraction(Uri uri) {
 
     }
-
-//    private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-//
-//        public MyFragmentPagerAdapter(FragmentManager fm) {
-//            super(fm);
-//        }
-//
-//        @Override
-//        public Fragment getItem(int position) {
-//            return new ArticlesListFragment();
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return 1;
-//        }
-//
-//    }
 }

@@ -1,12 +1,15 @@
 package com.dogzz.pim.dataobject;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
 /**
  * Data Object for storing article headers
  * Created by afon on 06.07.2016.
  */
-public class ArticleHeader implements Serializable {
+public class ArticleHeader {
     private String articleUrl = "";
     private String articleImageUrl = "";
     private String title = "";

@@ -39,7 +39,6 @@ public class ArticlesListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View view;
 
-    // TODO: Rename and change types of parameters
     private int pageNumber;
     private String url;
 
@@ -79,8 +78,8 @@ public class ArticlesListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (articlesList == null) {
-        view = inflater.inflate(R.layout.fragment_articles_list, container, false);
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_articles_list, container, false);
             ConnectivityManager connMgr =  (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
@@ -99,9 +98,6 @@ public class ArticlesListFragment extends Fragment {
                 public void onItemClick(View view, int position) {
                     ArticleHeader articleHeader = articlesList.getArticlesHeaders().get(position);
                     articleHeader.setRead(true);
-//                Intent intent = new Intent(getBaseContext(), ArticleActivity.class);
-//                intent.putExtra("URL", articleHeader.getArticleUrl());
-//                startActivity(intent);
                     onArticleClicked(articleHeader);
                     Toast.makeText(getActivity(), articleHeader.getTitle() + " is selected!", Toast.LENGTH_SHORT).show();
                 }
@@ -126,18 +122,13 @@ public class ArticlesListFragment extends Fragment {
             });
 
             mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
                     if (!recyclerView.canScrollVertically(-1)) {
 //                    onScrolledToTop();
                     } else if (!recyclerView.canScrollVertically(1)) {
-                        mSwipeRefreshLayout.setRefreshing(true);
-                        Toast.makeText(getActivity(), "END", Toast.LENGTH_SHORT).show();
-                        articlesList.loadNextPage(true);
-                        mSwipeRefreshLayout.setRefreshing(false);
-//                    onScrolledToBottom();
+                      loadNextPageIntoView();
                     } else if (dy < 0) {
 //                    onScrolledUp();
                     } else if (dy > 0) {
@@ -146,6 +137,10 @@ public class ArticlesListFragment extends Fragment {
                 }
             });
         return view;
+    }
+
+    private void loadNextPageIntoView() {
+        articlesList.loadNextPage(true);
     }
 
     public void onArticleClicked(ArticleHeader articleHeader) {
@@ -169,6 +164,11 @@ public class ArticlesListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
     }
 
     /**
