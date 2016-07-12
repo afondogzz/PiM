@@ -84,9 +84,9 @@ public class ArticlesList implements Serializable{
     private void populateData(Integer result) {
         if (result == 1) {
             try {
-                articlesHeaders.addAll(extractArticlesHeaders(downloadResult));
                 adapter = new MyRecyclerAdapter(mainActivity, articlesHeaders);
                 recyclerView.setAdapter(adapter);
+                articlesHeaders.addAll(extractArticlesHeaders(downloadResult));
             } catch (Exception e) {
                 Toast.makeText(mainActivity, "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
