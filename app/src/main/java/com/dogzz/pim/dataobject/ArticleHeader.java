@@ -18,6 +18,7 @@ public class ArticleHeader {
     private boolean isRead = false;
     private boolean isOffline = false;
     private String fileName = "";
+    private int type;// 0 for articles and 1 for news
 
 
     public String getArticleUrl() {
@@ -83,5 +84,13 @@ public class ArticleHeader {
 
     public void setFileName(String tempFileName) {
         this.fileName = tempFileName;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

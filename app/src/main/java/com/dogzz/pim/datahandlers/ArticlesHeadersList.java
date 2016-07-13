@@ -45,6 +45,7 @@ public class ArticlesHeadersList extends HeadersList {
             header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replace("/", "")));
             header.setArticleImageUrl(BASE_URL.concat("/").concat(rawHeader.select("img").attr("data-original").trim()));
             header.setLoadDate(System.currentTimeMillis());
+            header.setType(0);
             headers.add(header);
         }
         Collections.reverse(headers);

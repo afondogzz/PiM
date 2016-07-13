@@ -33,18 +33,10 @@ public class MainActivity extends AppCompatActivity
 
     private static final String PAGES_DISPLAYED = "pagesDisplayed";
     private static final String LOG_TAG = "MainActivity";
-    HeadersList HeadersList;
-    private RecyclerView mRecyclerView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    ViewPager pager;
-    PagerAdapter pagerAdapter;
-
     private ArticlesListFragment articlesListFragment;
     private ArticleContentFragment articleContentFragment;
     private FragmentTransaction fTrans;
 
-    private ActionMode actionMode;
     private ActionBarDrawerToggle toggle;
 
 
@@ -88,23 +80,6 @@ public class MainActivity extends AppCompatActivity
                 onBackPressed();
             }
         });
-
-//        pager = (ViewPager) findViewById(R.id.pager);
-//        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
-//        pager.setAdapter(pagerAdapter);
-
-//        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
-//        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        HeadersList = new HeadersList(mRecyclerView, this, connMgr);
-//        int pagesDisplayed = 1;
-//        if (savedInstanceState != null) {
-//            // Restore value of members from saved state
-//            pagesDisplayed = savedInstanceState.getInt(PAGES_DISPLAYED);
-//        }
-//        HeadersList.loadArticlesHeaders(pagesDisplayed, true);
-
-
     }
 
     @Override

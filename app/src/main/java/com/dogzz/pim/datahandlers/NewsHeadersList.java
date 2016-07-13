@@ -48,6 +48,7 @@ public class NewsHeadersList extends HeadersList {
             header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replaceFirst("/", "")));
             header.setArticleImageUrl("");
             header.setLoadDate(System.currentTimeMillis());
+            header.setType(1);
             headers.add(header);
         }
         Collections.reverse(headers);

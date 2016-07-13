@@ -38,14 +38,20 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
         ArticleHeader header = articlesHeaders.get(i);
-
+        ViewGroup.LayoutParams lParams = customViewHolder.imageView.getLayoutParams();
         //Download image using picasso library
         try {
             if (!header.getArticleImageUrl().isEmpty()) {
+                lParams.width = (int) mContext.getResources().getDimension(R.dimen.image_view_width);
+                customViewHolder.imageView.setLayoutParams(lParams);
+//                customViewHolder.imageView.setVisibility(View.VISIBLE);
                 Picasso.with(mContext).load(header.getArticleImageUrl())
                         .error(R.drawable.ic_menu_gallery)
                         .placeholder(R.drawable.ic_menu_gallery)
                         .into(customViewHolder.imageView);
+            } else {
+                lParams.width = -2;
+                customViewHolder.imageView.setLayoutParams(lParams);
             }
         } catch (Exception e) {
             Log.e("ImageLoad", e.getMessage());
