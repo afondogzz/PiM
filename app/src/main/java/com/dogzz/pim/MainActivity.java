@@ -5,22 +5,26 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.RecyclerView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import android.view.View;
 import android.widget.Toast;
-import com.dogzz.pim.datahandlers.ArticlesList;
-import com.dogzz.pim.dataobject.ArticleHeader;
+import com.dogzz.pim.datahandlers.HeadersList;
+
 import com.dogzz.pim.screens.ArticleContentFragment;
 import com.dogzz.pim.screens.ArticlesListFragment;
-import com.dogzz.pim.uihandlers.RecyclerItemClickListener;
+import com.dogzz.pim.uihandlers.NavigationItem;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -28,28 +32,29 @@ public class MainActivity extends AppCompatActivity
         ArticleContentFragment.OnFragmentInteractionListener {
 
     private static final String PAGES_DISPLAYED = "pagesDisplayed";
-    ArticlesList articlesList;
+    private static final String LOG_TAG = "MainActivity";
+    HeadersList HeadersList;
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     ViewPager pager;
     PagerAdapter pagerAdapter;
 
-    ArticlesListFragment articlesListFragment;
-    ArticleContentFragment articleContentFragment;
-    FragmentTransaction fTrans;
+    private ArticlesListFragment articlesListFragment;
+    private ArticleContentFragment articleContentFragment;
+    private FragmentTransaction fTrans;
 
+    private ActionMode actionMode;
+    private ActionBarDrawerToggle toggle;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        if (savedInstanceState == null) {
-            articlesListFragment = new ArticlesListFragment();
+            articlesListFragment = ArticlesListFragment.newInstance(NavigationItem.ARTICLES);
             fTrans = getSupportFragmentManager().beginTransaction();
             fTrans.add(R.id.frgmContainer, articlesListFragment);
-//        fTrans.addToBackStack(null);
             fTrans.commit();
 //        }
 
@@ -68,14 +73,21 @@ public class MainActivity extends AppCompatActivity
 //        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        navigationView.setCheckedItem(R.id.nav_articles);
+        // Navigation back icon listener
+        toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
 //        pager = (ViewPager) findViewById(R.id.pager);
 //        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
@@ -84,13 +96,13 @@ public class MainActivity extends AppCompatActivity
 //        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
 //        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        articlesList = new ArticlesList(mRecyclerView, this, connMgr);
+//        HeadersList = new HeadersList(mRecyclerView, this, connMgr);
 //        int pagesDisplayed = 1;
 //        if (savedInstanceState != null) {
 //            // Restore value of members from saved state
 //            pagesDisplayed = savedInstanceState.getInt(PAGES_DISPLAYED);
 //        }
-//        articlesList.loadArticlesHeaders(pagesDisplayed, true);
+//        HeadersList.loadArticlesHeaders(pagesDisplayed, true);
 
 
     }
@@ -102,25 +114,21 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            switchActionBarToggle(true);
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_refresh) {
             return true;
         }
 
@@ -133,20 +141,19 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_articles) {
+            Toast.makeText(this, "Articles is selected", Toast.LENGTH_SHORT).show();
+            articlesListFragment.setNavigationItem(NavigationItem.ARTICLES);
+        } else if (id == R.id.nav_news) {
+            articlesListFragment.setNavigationItem(NavigationItem.NEWS);
+            Toast.makeText(this, "News is selected", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.nav_saved) {
+            Toast.makeText(this, "Saved is selected", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_about) {
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -155,7 +162,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-//        savedInstanceState.putInt(PAGES_DISPLAYED, articlesList.getCurrentPageNumber());
+//        savedInstanceState.putInt(PAGES_DISPLAYED, HeadersList.getCurrentPageNumber());
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -163,13 +170,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onArticleClicked(String url) {
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setHomeButtonEnabled(true);
+        switchActionBarToggle(false);
         articleContentFragment = ArticleContentFragment.newInstance(url);
         fTrans = getSupportFragmentManager().beginTransaction();
+//        fTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fTrans.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         fTrans.replace(R.id.frgmContainer, articleContentFragment);
         fTrans.addToBackStack(null);
         fTrans.commit();
+    }
+
+    private void switchActionBarToggle(boolean toNavigationDraw) {
+        toggle.setDrawerIndicatorEnabled(toNavigationDraw);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(!toNavigationDraw);
+        toggle.syncState();
     }
 
     @Override

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Петр и Мазепа</string>
-    <string name="action_settings">Настройки</string>
+    <string name="action_refresh">Обновить</string>
     <string name="navigation_drawer_close">Закрыть меню</string>
     <string name="navigation_drawer_open">Открыть меню</string>
     <string name="title_activity_article">Статья</string>
-    <string name="swipe_again">Свайпните еще раз для загрузки старых статей</string>
+    <string name="about">О программе</string>
+    <string name="articles">Статьи</string>
+    <string name="news">Новости</string>
+    <string name="saved">Сохраненные</string>
+    <string name="settings">Настройки</string>
 </resources>

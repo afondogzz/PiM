@@ -2,7 +2,6 @@ package com.dogzz.pim.screens;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -13,11 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Toast;
-import com.dogzz.pim.MainActivity;
 import com.dogzz.pim.R;
-import com.dogzz.pim.datahandlers.ArticlesList;
+import com.dogzz.pim.datahandlers.ArticlesHeadersList;
+import com.dogzz.pim.datahandlers.HeadersList;
+import com.dogzz.pim.datahandlers.NewsHeadersList;
 import com.dogzz.pim.dataobject.ArticleHeader;
+import com.dogzz.pim.uihandlers.NavigationItem;
 import com.dogzz.pim.uihandlers.RecyclerItemClickListener;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,19 +32,20 @@ import com.dogzz.pim.uihandlers.RecyclerItemClickListener;
 public class ArticlesListFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String PAGE_NUMBER = "pageNumber";
+    private static final String NAVIGATION_ITEM = "navigationItem";
     private static final String ARTICLE_URL = "url";
 
     private static final String PAGES_DISPLAYED = "pagesDisplayed";
-    ArticlesList articlesList;
+    HeadersList headersList;
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View view;
 
-    private int pageNumber;
+    private NavigationItem navigationItem = NavigationItem.ARTICLES;
     private String url;
 
     private OnFragmentInteractionListener mListener;
+    private ConnectivityManager connMgr;
 
     public ArticlesListFragment() {
         // Required empty public constructor
@@ -52,16 +55,14 @@ public class ArticlesListFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param pageNumber 1 if list of articles and 2 if content of article
-     * @param url url of article if pageNumber is 2
+     * @param navigationItem
      * @return A new instance of fragment ArticlesListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ArticlesListFragment newInstance(int pageNumber, String url) {
+    public static ArticlesListFragment newInstance(NavigationItem navigationItem) {
         ArticlesListFragment fragment = new ArticlesListFragment();
         Bundle args = new Bundle();
-        args.putInt(PAGE_NUMBER, pageNumber);
-        args.putString(ARTICLE_URL, url);
+        args.putInt(NAVIGATION_ITEM, navigationItem.getItemNo());
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,8 +71,7 @@ public class ArticlesListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            pageNumber = getArguments().getInt(PAGE_NUMBER);
-            url = getArguments().getString(ARTICLE_URL);
+            navigationItem = NavigationItem.fromNumber(getArguments().getInt(NAVIGATION_ITEM));
         }
     }
 
@@ -80,31 +80,30 @@ public class ArticlesListFragment extends Fragment {
                              Bundle savedInstanceState) {
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_articles_list, container, false);
-            ConnectivityManager connMgr =  (ConnectivityManager)
+            connMgr = (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
             mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-            articlesList = new ArticlesList(mRecyclerView, getActivity(), connMgr);
+            headersList = getHeadersListInstance(connMgr);
             int pagesDisplayed = 1;
 //        if (savedInstanceState != null) {
 //            pagesDisplayed = savedInstanceState.getInt(PAGES_DISPLAYED);
 //        }
-            articlesList.loadArticlesHeaders(pagesDisplayed, true);
-        }
+            headersList.loadArticlesHeaders(pagesDisplayed, true);
+
             mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    ArticleHeader articleHeader = articlesList.getArticlesHeaders().get(position);
+                    ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
                     articleHeader.setRead(true);
                     onArticleClicked(articleHeader);
-                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is selected!", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is selected!", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onLongItemClick(View view, int position) {
-                    ArticleHeader articleHeader = articlesList.getArticlesHeaders().get(position);
+                    ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
                     Toast.makeText(getActivity(), articleHeader.getTitle() + " is long pressed!", Toast.LENGTH_SHORT).show();
                 }
             }));
@@ -136,11 +135,24 @@ public class ArticlesListFragment extends Fragment {
                     }
                 }
             });
+        }
         return view;
     }
 
+    @NotNull
+    private HeadersList getHeadersListInstance(ConnectivityManager connMgr) {
+        switch (navigationItem) {
+            case ARTICLES:
+                return new ArticlesHeadersList(mRecyclerView, getActivity(), connMgr);
+            case NEWS:
+                return new NewsHeadersList(mRecyclerView, getActivity(), connMgr);
+            default:
+                return null;
+        }
+    }
+
     private void loadNextPageIntoView() {
-        articlesList.loadNextPage(true);
+        headersList.loadNextPage(true);
     }
 
     public void onArticleClicked(ArticleHeader articleHeader) {
@@ -169,6 +181,15 @@ public class ArticlesListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
+    }
+
+    public void setNavigationItem (NavigationItem navigationItem) {
+        if (this.navigationItem != navigationItem) {
+            this.navigationItem = navigationItem;
+            headersList = getHeadersListInstance(connMgr);
+            int pagesDisplayed = 1;
+            headersList.loadArticlesHeaders(pagesDisplayed, true);
+        }
     }
 
     /**

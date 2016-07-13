@@ -8,14 +8,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.dogzz.pim.R;
-import com.dogzz.pim.datahandlers.ArticlesList;
+import com.dogzz.pim.datahandlers.HeadersList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -63,6 +61,7 @@ public class ArticleContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             articleUrl = getArguments().getString(ARTICLE_URL);
         }
@@ -125,11 +124,29 @@ public class ArticleContentFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.article_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Get item selected and deal with it
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //called when the up affordance/carat in actionbar is pressed
+                getActivity().onBackPressed();
+                return true;
+        }
+        return true;
+    }
+
     public void loadData(int result) {
         if (result == 1) {
             try {
                 String pureArticle = extractArticle(downloadResult);
-                webView.loadDataWithBaseURL(ArticlesList.BASE_URL, pureArticle, "text/html", null, "");
+                webView.loadDataWithBaseURL(HeadersList.BASE_URL, pureArticle, "text/html", null, "");
             } catch (Exception e) {
                 Toast.makeText(getActivity(), "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();

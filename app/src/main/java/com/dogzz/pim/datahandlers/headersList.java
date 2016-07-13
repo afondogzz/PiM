@@ -27,29 +27,29 @@ import java.util.List;
 /**
  * Class responsible for loading list of articles from source site and getting text data to view
  */
-public class ArticlesList implements Serializable{
+public abstract class HeadersList implements Serializable{
 
-    private String downloadResult = "";
-    private List<ArticleHeader> articlesHeaders = new ArrayList<>();
-    private int currentPageNumber = 0;
+    protected String downloadResult = "";
+    protected List<ArticleHeader> articlesHeaders = new ArrayList<>();
+    protected int currentPageNumber = 0;
     public static final String BASE_URL = "http://petrimazepa.com";
     public static final String PATH_URL = "/ajax/articles/%d/12";
-    private RecyclerView recyclerView;
-    private MyRecyclerAdapter adapter;
-    private Activity mainActivity;
-    private ConnectivityManager connectivityManager;
+    protected RecyclerView recyclerView;
+    protected MyRecyclerAdapter adapter;
+    protected Activity mainActivity;
+    protected ConnectivityManager connectivityManager;
 //    public static final String TMP_FILE_PATH = "/temp";
 //    public static final String SAVED_FILE_PATH = "/saved";
 
-    public ArticlesList(String contentAsString) {
+    public HeadersList(String contentAsString) {
 
     }
 
-    public ArticlesList() {
+    public HeadersList() {
 
     }
 
-    public ArticlesList(RecyclerView recyclerView, Activity activity, ConnectivityManager connectivityManager) {
+    public HeadersList(RecyclerView recyclerView, Activity activity, ConnectivityManager connectivityManager) {
         this.recyclerView = recyclerView;
         this.mainActivity = activity;
         this.connectivityManager = connectivityManager;
@@ -71,12 +71,7 @@ public class ArticlesList implements Serializable{
         }
     }
 
-    private void loadArticlesListFromSource() throws SourceConnectException {
-            DownloadArticlesListTask downloadTask = new DownloadArticlesListTask();
-//            String url = currentPageNumber == 1 ? BASE_URL.concat("/") : BASE_URL.concat("/?page=").concat(String.valueOf(currentPageNumber));
-            String url = BASE_URL.concat(String.format(PATH_URL, (currentPageNumber-1)*12));
-            downloadTask.execute(url);
-    }
+    protected abstract void loadArticlesListFromSource() throws SourceConnectException;
 
     public void loadNextPage(boolean updateFromSource) {
         currentPageNumber++;
@@ -89,11 +84,12 @@ public class ArticlesList implements Serializable{
                 if (adapter == null) {
                     adapter = new MyRecyclerAdapter(mainActivity, articlesHeaders);
                     recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 }
                 int startCount = articlesHeaders.size();
                 articlesHeaders.addAll(extractArticlesHeaders(downloadResult));
                 int endCount = articlesHeaders.size();
-                adapter.notifyItemRangeInserted(startCount - 1, endCount - startCount);
+                adapter.notifyItemRangeInserted(startCount, endCount - startCount);
             } catch (Exception e) {
                 Toast.makeText(mainActivity, "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
@@ -103,23 +99,7 @@ public class ArticlesList implements Serializable{
         }
     }
 
-    private List<ArticleHeader> extractArticlesHeaders(String result) {
-        List<ArticleHeader> headers = new ArrayList<>();
-        Document doc = Jsoup.parse(result);
-        Elements rawHeaders = doc.select("div[class~=effect.*article]");
-        Collections.reverse(rawHeaders);
-        for (Element rawHeader : rawHeaders) {
-            ArticleHeader header = new ArticleHeader();
-            header.setTitle(rawHeader.select("h4").text());
-            header.setSubTitle(rawHeader.select("p").text());
-            header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replace("/", "")));
-            header.setArticleImageUrl(BASE_URL.concat("/").concat(rawHeader.select("img").attr("data-original").trim()));
-            header.setLoadDate(System.currentTimeMillis());
-            headers.add(header);
-        }
-        Collections.reverse(headers);
-        return headers;
-    }
+    protected abstract List<ArticleHeader> extractArticlesHeaders(String result);
 
     public List<ArticleHeader> getArticlesHeaders() {
         return articlesHeaders;

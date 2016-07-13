@@ -41,10 +41,12 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
 
         //Download image using picasso library
         try {
-            Picasso.with(mContext).load(header.getArticleImageUrl())
-                    .error(R.drawable.ic_menu_gallery)
-                    .placeholder(R.drawable.ic_menu_gallery)
-                    .into(customViewHolder.imageView);
+            if (!header.getArticleImageUrl().isEmpty()) {
+                Picasso.with(mContext).load(header.getArticleImageUrl())
+                        .error(R.drawable.ic_menu_gallery)
+                        .placeholder(R.drawable.ic_menu_gallery)
+                        .into(customViewHolder.imageView);
+            }
         } catch (Exception e) {
             Log.e("ImageLoad", e.getMessage());
         }
