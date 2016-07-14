@@ -2,9 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-            android:id="@+id/action_refresh"
-            android:title="@string/action_refresh"
-            android:icon="@android:drawable/arrow_up_float"
+            android:id="@+id/action_download"
+            android:title="@string/action_download"
+            android:icon="@mipmap/ic_file_download_white_48dp"
             android:orderInCategory="100"
             app:showAsAction="always"/>
+
+    <!--android:icon="@android:drawable/arrow_up_float"-->
 </menu>

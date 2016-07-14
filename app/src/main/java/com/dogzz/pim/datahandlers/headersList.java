@@ -1,12 +1,14 @@
 package com.dogzz.pim.datahandlers;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
+import com.dogzz.pim.database.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.exception.SourceConnectException;
 import com.dogzz.pim.uihandlers.MyRecyclerAdapter;
@@ -34,6 +36,7 @@ public abstract class HeadersList implements Serializable{
     protected int currentPageNumber = 0;
     public static final String BASE_URL = "http://petrimazepa.com";
     public static final String PATH_URL = "/ajax/articles/%d/12";
+    public static final int DAY_IN_MILLISECONDS = 86400000;
     protected RecyclerView recyclerView;
     protected MyRecyclerAdapter adapter;
     protected Activity mainActivity;
@@ -87,7 +90,10 @@ public abstract class HeadersList implements Serializable{
                     adapter.notifyDataSetChanged();
                 }
                 int startCount = articlesHeaders.size();
-                articlesHeaders.addAll(extractArticlesHeaders(downloadResult));
+                DBHelper mDBHelper = new DBHelper(mainActivity, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
+                SQLiteDatabase mDB = mDBHelper.getWritableDatabase();
+                articlesHeaders.addAll(extractArticlesHeaders(downloadResult, mDB));
+                if (mDBHelper!=null) mDBHelper.close();
                 int endCount = articlesHeaders.size();
                 adapter.notifyItemRangeInserted(startCount, endCount - startCount);
             } catch (Exception e) {
@@ -99,7 +105,15 @@ public abstract class HeadersList implements Serializable{
         }
     }
 
-    protected abstract List<ArticleHeader> extractArticlesHeaders(String result);
+    public void markHeaderAsRead(int position) {
+        DBHelper mDBHelper = new DBHelper(mainActivity, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
+        SQLiteDatabase mDB = mDBHelper.getWritableDatabase();
+        articlesHeaders.get(position).markArticleAsRead(mDB);
+        if (mDBHelper!=null) mDBHelper.close();
+        adapter.notifyItemChanged(position);
+    }
+
+    protected abstract List<ArticleHeader> extractArticlesHeaders(String result, SQLiteDatabase db);
 
     public List<ArticleHeader> getArticlesHeaders() {
         return articlesHeaders;
@@ -109,6 +123,8 @@ public abstract class HeadersList implements Serializable{
     public int getCurrentPageNumber() {
         return currentPageNumber;
     }
+
+
 
 
     public class DownloadArticlesListTask extends AsyncTask<String, Void, Integer> {

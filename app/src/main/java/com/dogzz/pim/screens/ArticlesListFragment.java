@@ -1,6 +1,7 @@
 package com.dogzz.pim.screens;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 
 import android.widget.Toast;
 import com.dogzz.pim.R;
+import com.dogzz.pim.database.DBHelper;
 import com.dogzz.pim.datahandlers.ArticlesHeadersList;
 import com.dogzz.pim.datahandlers.HeadersList;
 import com.dogzz.pim.datahandlers.NewsHeadersList;
@@ -96,7 +98,7 @@ public class ArticlesListFragment extends Fragment {
                 @Override
                 public void onItemClick(View view, int position) {
                     ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
-                    articleHeader.setRead(true);
+                    headersList.markHeaderAsRead(position);
                     onArticleClicked(articleHeader);
 //                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is selected!", Toast.LENGTH_SHORT).show();
                 }
@@ -104,7 +106,8 @@ public class ArticlesListFragment extends Fragment {
                 @Override
                 public void onLongItemClick(View view, int position) {
                     ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
-                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is long pressed!", Toast.LENGTH_SHORT).show();
+                    onArticleLongClicked(articleHeader);
+//                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is long pressed!", Toast.LENGTH_SHORT).show();
                 }
             }));
 
@@ -161,6 +164,12 @@ public class ArticlesListFragment extends Fragment {
         }
     }
 
+    public void onArticleLongClicked(ArticleHeader articleHeader) {
+        if (mListener != null) {
+            mListener.onArticleLongClicked(articleHeader.getArticleUrl());
+        }
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -204,5 +213,6 @@ public class ArticlesListFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         void onArticleClicked(String uri);
+        void onArticleLongClicked(String uri);
     }
 }

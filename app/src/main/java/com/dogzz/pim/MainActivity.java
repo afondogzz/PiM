@@ -2,6 +2,7 @@ package com.dogzz.pim;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -36,9 +37,10 @@ public class MainActivity extends AppCompatActivity
     private ArticlesListFragment articlesListFragment;
     private ArticleContentFragment articleContentFragment;
     private FragmentTransaction fTrans;
-
     private ActionBarDrawerToggle toggle;
-
+    private Menu mainMenu;
+    private String selectedArticleUrl;
+    private boolean isContextBarVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +90,10 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (!isContextBarVisible) {
+                super.onBackPressed();
+            }
+            isContextBarVisible = false;
             switchActionBarToggle(true);
         }
     }
@@ -96,6 +101,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        menu.setGroupVisible(R.id.menu_group1, true);
+        menu.setGroupVisible(R.id.menu_group2, false);
+        this.mainMenu = menu;
         return true;
     }
 
@@ -105,6 +113,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_refresh) {
             return true;
+        } else if (id == R.id.action_download) {
+            Toast.makeText(this, selectedArticleUrl + " is downloading", Toast.LENGTH_SHORT).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -146,6 +156,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onArticleClicked(String url) {
         switchActionBarToggle(false);
+        selectedArticleUrl = url;
         articleContentFragment = ArticleContentFragment.newInstance(url);
         fTrans = getSupportFragmentManager().beginTransaction();
 //        fTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -155,7 +166,16 @@ public class MainActivity extends AppCompatActivity
         fTrans.commit();
     }
 
+    @Override
+    public void onArticleLongClicked(String url) {
+        isContextBarVisible = true;
+        switchActionBarToggle(false);
+        selectedArticleUrl = url;
+    }
+
     private void switchActionBarToggle(boolean toNavigationDraw) {
+        mainMenu.setGroupVisible(R.id.menu_group1, toNavigationDraw);
+        mainMenu.setGroupVisible(R.id.menu_group2, !toNavigationDraw);
         toggle.setDrawerIndicatorEnabled(toNavigationDraw);
         getSupportActionBar().setDisplayHomeAsUpEnabled(!toNavigationDraw);
         toggle.syncState();

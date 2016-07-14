@@ -2,7 +2,6 @@ package com.dogzz.pim.uihandlers;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +57,15 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         }
         //Setting text view title
         customViewHolder.textView.setText(header.getTitle());
+        if (header.isRead()) {
+//            customViewHolder.parentView.getBackground().setColorFilter(0xA6A6A6A6, PorterDuff.Mode.SRC_IN);
+//            customViewHolder.parentView.setAlpha(0.3f);
+            customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
+        } else {
+//            customViewHolder.parentView.setAlpha(0.8f);
+//            customViewHolder.parentView.getBackground().clearColorFilter();
+            customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColor));
+        }
     }
 
     @Override
@@ -65,12 +73,14 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         return (null != articlesHeaders ? articlesHeaders.size() : 0);
     }
 
-    public static class CustomViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView imageView;
-        protected TextView textView;
+    static class CustomViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
+        TextView textView;
+        View parentView;
 
-        public CustomViewHolder(View view) {
+        CustomViewHolder(View view) {
             super(view);
+            this.parentView = view;
             this.imageView = (ImageView) view.findViewById(R.id.articleimage);
             this.textView = (TextView) view.findViewById(R.id.articletitle);
         }

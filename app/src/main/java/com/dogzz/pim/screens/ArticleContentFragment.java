@@ -61,7 +61,7 @@ public class ArticleContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+//        setHasOptionsMenu(true);
         if (getArguments() != null) {
             articleUrl = getArguments().getString(ARTICLE_URL);
         }
@@ -126,19 +126,19 @@ public class ArticleContentFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.article_menu, menu);
+//        inflater.inflate(R.menu.article_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Get item selected and deal with it
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                //called when the up affordance/carat in actionbar is pressed
-                getActivity().onBackPressed();
-                return true;
-        }
+//        switch (item.getItemId()) {
+//            case android.R.id.home:
+//                //called when the up affordance/carat in actionbar is pressed
+//                getActivity().onBackPressed();
+//                return true;
+//        }
         return true;
     }
 

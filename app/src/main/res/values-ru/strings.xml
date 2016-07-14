@@ -10,4 +10,5 @@
     <string name="news">Новости</string>
     <string name="saved">Сохраненные</string>
     <string name="settings">Настройки</string>
+    <string name="action_download">Сохранить</string>
 </resources>

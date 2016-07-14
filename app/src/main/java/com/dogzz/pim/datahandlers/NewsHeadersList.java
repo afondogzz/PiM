@@ -6,6 +6,7 @@
 package com.dogzz.pim.datahandlers;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.support.v7.widget.RecyclerView;
 import com.dogzz.pim.dataobject.ArticleHeader;
@@ -36,7 +37,7 @@ public class NewsHeadersList extends HeadersList {
     }
 
     @Override
-    protected List<ArticleHeader> extractArticlesHeaders(String result) {
+    protected List<ArticleHeader> extractArticlesHeaders(String result, SQLiteDatabase db) {
         List<ArticleHeader> headers = new ArrayList<>();
         Document doc = Jsoup.parse(result);
         Elements rawHeaders = doc.select("div[class=news]");

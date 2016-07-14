@@ -1,9 +1,9 @@
 package com.dogzz.pim.dataobject;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import java.io.Serializable;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import static com.dogzz.pim.database.DBHelper.*;
 
 /**
  * Data Object for storing article headers
@@ -20,6 +20,66 @@ public class ArticleHeader {
     private String fileName = "";
     private int type;// 0 for articles and 1 for news
 
+    private SQLiteDatabase db;
+    private String[] columns = null;
+    private String selection = null;
+    private String[] selectionArgs = null;
+
+    public ArticleHeader() {}
+
+    public ArticleHeader(SQLiteDatabase db) {
+        this.db = db;
+    }
+
+    public void synchronizeWithDB() {
+        Cursor c = getRecordFromDB();
+        if (c == null || c.getCount() == 0) {
+            saveRecordToDB();
+        } else {
+            updateRecordAccordingToDB(c);
+        }
+    }
+
+    private Cursor getRecordFromDB() {
+        columns = new String[] {COLUMN_READ, COLUMN_OFFLINE, COLUMN_URL, COLUMN_LOAD_DATE, COLUMN_FILENAME};
+        selection = COLUMN_URL.concat(" = ? AND ").concat(COLUMN_TYPE).concat(" = ?");
+        selectionArgs = new String[] { articleUrl , String.valueOf(type)};
+        return db.query(DB_TABLE, columns, selection, selectionArgs, null, null,
+                null);
+    }
+
+    private void saveRecordToDB() {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_TITLE, getTitle());
+        cv.put(COLUMN_SUB_TITLE, getSubTitle());
+        cv.put(COLUMN_LOAD_DATE, getLoadDate());
+        cv.put(COLUMN_READ, isRead() ? 1:0);
+        cv.put(COLUMN_OFFLINE, isOffline() ? 1:0);
+        cv.put(COLUMN_FILENAME, getFileName());
+        cv.put(COLUMN_URL, getArticleUrl());
+        cv.put(COLUMN_IMAGE_URL, getArticleImageUrl());
+        cv.put(COLUMN_TYPE, getType());
+        db.insert(DB_TABLE, null, cv);
+    }
+
+    private void updateRecordAccordingToDB(Cursor cursor) {
+        if (cursor.moveToFirst()) {
+            setRead(cursor.getInt(cursor.getColumnIndex(COLUMN_READ)) == 1);
+            setOffline(cursor.getInt(cursor.getColumnIndex(COLUMN_OFFLINE)) == 1);
+            setLoadDate(cursor.getInt(cursor.getColumnIndex(COLUMN_LOAD_DATE)));
+            setFileName(cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME)));
+        }
+
+    }
+
+    public void markArticleAsRead(SQLiteDatabase db) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_READ, 1);
+        selection = COLUMN_URL.concat(" = ? AND ").concat(COLUMN_TYPE).concat(" = ?");
+        selectionArgs = new String[] { articleUrl , String.valueOf(type)};
+        db.update(DB_TABLE, cv, selection, selectionArgs);
+        setRead(true);
+    }
 
     public String getArticleUrl() {
         return articleUrl;
@@ -93,4 +153,5 @@ public class ArticleHeader {
     public void setType(int type) {
         this.type = type;
     }
+
 }
