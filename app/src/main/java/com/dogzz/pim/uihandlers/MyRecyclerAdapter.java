@@ -1,6 +1,7 @@
 package com.dogzz.pim.uihandlers;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,11 +18,12 @@ import java.util.List;
 
 /**
  * Adapter for loading data from List of headers to recycle view
- * Created by afon on 07.07.2016.
+ * Created by dogzz on 07.07.2016.
  */
 public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.CustomViewHolder> implements Serializable {
     private List<ArticleHeader> articlesHeaders;
     private Context mContext;
+    private int selectedPosition = -1;
 
     public MyRecyclerAdapter(Context context, List<ArticleHeader> articlesHeaders) {
         this.articlesHeaders = articlesHeaders;
@@ -29,14 +31,14 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
     }
 
     @Override
-    public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.headers_list_row, viewGroup, false);
         return new CustomViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
-        ArticleHeader header = articlesHeaders.get(i);
+    public void onBindViewHolder(CustomViewHolder customViewHolder, int position) {
+        ArticleHeader header = articlesHeaders.get(position);
         ViewGroup.LayoutParams lParams = customViewHolder.imageView.getLayoutParams();
         //Download image using picasso library
         try {
@@ -57,14 +59,21 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         }
         //Setting text view title
         customViewHolder.textView.setText(header.getTitle());
-        if (header.isRead()) {
+
+        if(selectedPosition == position){
+            customViewHolder.itemView.setBackgroundColor(Color.BLACK);
+            customViewHolder.textView.setTextColor(Color.WHITE);
+        }else{
+            customViewHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
+            if (header.isRead()) {
 //            customViewHolder.parentView.getBackground().setColorFilter(0xA6A6A6A6, PorterDuff.Mode.SRC_IN);
 //            customViewHolder.parentView.setAlpha(0.3f);
-            customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
-        } else {
+                customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
+            } else {
 //            customViewHolder.parentView.setAlpha(0.8f);
 //            customViewHolder.parentView.getBackground().clearColorFilter();
-            customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColor));
+                customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColor));
+            }
         }
     }
 
@@ -73,14 +82,24 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         return (null != articlesHeaders ? articlesHeaders.size() : 0);
     }
 
+    public void selectItem(int position) {
+        notifyItemChanged(selectedPosition);
+        selectedPosition = position;
+        notifyItemChanged(selectedPosition);
+    }
+
+    public void unselectAllItems() {
+        notifyItemChanged(selectedPosition);
+        selectedPosition = -1;
+        notifyItemChanged(selectedPosition);
+    }
+
     static class CustomViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textView;
-        View parentView;
 
         CustomViewHolder(View view) {
             super(view);
-            this.parentView = view;
             this.imageView = (ImageView) view.findViewById(R.id.articleimage);
             this.textView = (TextView) view.findViewById(R.id.articletitle);
         }

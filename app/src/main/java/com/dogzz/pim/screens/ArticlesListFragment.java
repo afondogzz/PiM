@@ -1,7 +1,6 @@
 package com.dogzz.pim.screens;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 
 import android.widget.Toast;
 import com.dogzz.pim.R;
-import com.dogzz.pim.database.DBHelper;
 import com.dogzz.pim.datahandlers.ArticlesHeadersList;
 import com.dogzz.pim.datahandlers.HeadersList;
 import com.dogzz.pim.datahandlers.NewsHeadersList;
@@ -106,6 +104,7 @@ public class ArticlesListFragment extends Fragment {
                 @Override
                 public void onLongItemClick(View view, int position) {
                     ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
+                    headersList.markHeaderAsSelected(position);
                     onArticleLongClicked(articleHeader);
 //                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is long pressed!", Toast.LENGTH_SHORT).show();
                 }
@@ -160,13 +159,13 @@ public class ArticlesListFragment extends Fragment {
 
     public void onArticleClicked(ArticleHeader articleHeader) {
         if (mListener != null) {
-            mListener.onArticleClicked(articleHeader.getArticleUrl());
+            mListener.onArticleClicked(articleHeader);
         }
     }
 
     public void onArticleLongClicked(ArticleHeader articleHeader) {
         if (mListener != null) {
-            mListener.onArticleLongClicked(articleHeader.getArticleUrl());
+            mListener.onArticleLongClicked(articleHeader);
         }
     }
 
@@ -201,6 +200,10 @@ public class ArticlesListFragment extends Fragment {
         }
     }
 
+    public void unselectAllItems() {
+        headersList.unselectAllItems();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -212,7 +215,7 @@ public class ArticlesListFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onArticleClicked(String uri);
-        void onArticleLongClicked(String uri);
+        void onArticleClicked(ArticleHeader header);
+        void onArticleLongClicked(ArticleHeader header);
     }
 }

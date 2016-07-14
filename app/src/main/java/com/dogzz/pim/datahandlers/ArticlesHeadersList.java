@@ -48,7 +48,7 @@ public class ArticlesHeadersList extends HeadersList {
             ArticleHeader header = new ArticleHeader(db);
             header.setTitle(rawHeader.select("h4").text());
             header.setSubTitle(rawHeader.select("p").text());
-            header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replace("/", "")));
+            header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replaceFirst("/", "")));
             header.setArticleImageUrl(BASE_URL.concat(rawHeader.select("img").attr("data-original").trim()));
             header.setLoadDate(loadTime + timeCounter);
             header.setType(0);

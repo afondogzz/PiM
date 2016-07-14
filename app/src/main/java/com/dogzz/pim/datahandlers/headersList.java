@@ -4,24 +4,16 @@ import android.app.Activity;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
-import com.dogzz.pim.database.DBHelper;
+import com.dogzz.pim.asynctask.DownloadTask;
+import com.dogzz.pim.persistence.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.exception.SourceConnectException;
 import com.dogzz.pim.uihandlers.MyRecyclerAdapter;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -113,6 +105,14 @@ public abstract class HeadersList implements Serializable{
         adapter.notifyItemChanged(position);
     }
 
+    public void markHeaderAsSelected(int position) {
+        adapter.selectItem(position);
+    }
+
+    public void unselectAllItems() {
+        adapter.unselectAllItems();
+    }
+
     protected abstract List<ArticleHeader> extractArticlesHeaders(String result, SQLiteDatabase db);
 
     public List<ArticleHeader> getArticlesHeaders() {
@@ -127,7 +127,7 @@ public abstract class HeadersList implements Serializable{
 
 
 
-    public class DownloadArticlesListTask extends AsyncTask<String, Void, Integer> {
+    public class DownloadArticlesListTask extends DownloadTask {
 
         @Override
         protected Integer doInBackground(String... urls) {
@@ -145,53 +145,8 @@ public abstract class HeadersList implements Serializable{
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(Integer result) {
+            downloadResult = resultMessage;
             populateData(result);
-        }
-
-        private Integer downloadUrl(String myurl) throws IOException {
-            InputStream is = null;
-            // Only display the first 500 characters of the retrieved
-            // web page content.
-            int len = 50000;
-
-            try {
-                URL url = new URL(myurl);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000 /* milliseconds */);
-                conn.setConnectTimeout(15000 /* milliseconds */);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                // Starts the query
-                conn.connect();
-                int response = conn.getResponseCode();
-                Log.d("Network", "The response is: " + response);
-                InputStream it = new BufferedInputStream(conn.getInputStream());
-                InputStreamReader read = new InputStreamReader(it);
-                BufferedReader buff = new BufferedReader(read);
-                StringBuilder dta = new StringBuilder();
-                String chunks;
-                while ((chunks = buff.readLine()) != null) {
-                    dta.append(chunks);
-                }
-//            is = conn.getInputStream();
-
-                // Convert the InputStream into a string
-                downloadResult = dta.toString();
-                return 1;
-            } catch (Exception e) {
-                downloadResult = "Error: ".concat(e.getMessage());
-                return 0;
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        Log.e("Network", e.getMessage());
-                    }
-                }
-            }
         }
     }
 }

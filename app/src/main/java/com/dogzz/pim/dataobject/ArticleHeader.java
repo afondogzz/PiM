@@ -3,7 +3,12 @@ package com.dogzz.pim.dataobject;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import static com.dogzz.pim.database.DBHelper.*;
+import android.widget.Toast;
+import com.dogzz.pim.asynctask.DownloadTask;
+
+import java.io.IOException;
+
+import static com.dogzz.pim.persistence.DBHelper.*;
 
 /**
  * Data Object for storing article headers
@@ -24,6 +29,7 @@ public class ArticleHeader {
     private String[] columns = null;
     private String selection = null;
     private String[] selectionArgs = null;
+    private String downloadResult;
 
     public ArticleHeader() {}
 
@@ -153,5 +159,6 @@ public class ArticleHeader {
     public void setType(int type) {
         this.type = type;
     }
-
 }
+
+

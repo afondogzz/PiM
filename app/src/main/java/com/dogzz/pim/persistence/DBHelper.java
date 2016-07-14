@@ -3,7 +3,7 @@
 * @Created: 7/14/2016
 */
 
-package com.dogzz.pim.database;
+package com.dogzz.pim.persistence;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

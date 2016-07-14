@@ -4,7 +4,8 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="80dp"
                                     android:layout_margin="4dp"
-                                    android:background="@drawable/side_nav_bar">
+                                    android:background="@drawable/side_nav_bar"
+        >
 
     <RelativeLayout
             android:layout_width="match_parent"

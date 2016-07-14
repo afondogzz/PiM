@@ -4,23 +4,20 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.*;
 
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.dogzz.pim.R;
+import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.datahandlers.HeadersList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,7 +34,7 @@ public class ArticleContentFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private WebView webView;
-    private String downloadResult = "";
+    public String downloadResult = "";
 
     public ArticleContentFragment() {
         // Required empty public constructor
@@ -75,7 +72,7 @@ public class ArticleContentFragment extends Fragment {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        DownloadArticleTask downloadTask = new DownloadArticleTask();
+        DownloadTask downloadTask = new DownloadArticleTask();
         if (networkInfo != null && networkInfo.isConnected()) {
             downloadTask.execute(articleUrl);
         } else {
@@ -166,7 +163,7 @@ public class ArticleContentFragment extends Fragment {
         return resultHtml;
     }
 
-    public class DownloadArticleTask extends AsyncTask<String, Void, Integer> {
+    public class DownloadArticleTask extends DownloadTask {
 
         @Override
         protected Integer doInBackground(String... urls) {
@@ -184,53 +181,8 @@ public class ArticleContentFragment extends Fragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(Integer result) {
+            downloadResult = resultMessage;
             loadData(result);
-        }
-
-        private Integer downloadUrl(String myurl) throws IOException {
-            InputStream is = null;
-            // Only display the first 500 characters of the retrieved
-            // web page content.
-            int len = 50000;
-
-            try {
-                URL url = new URL(myurl);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000 /* milliseconds */);
-                conn.setConnectTimeout(15000 /* milliseconds */);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                // Starts the query
-                conn.connect();
-                int response = conn.getResponseCode();
-                Log.d("Network", "The response is: " + response);
-                InputStream it = new BufferedInputStream(conn.getInputStream());
-                InputStreamReader read = new InputStreamReader(it);
-                BufferedReader buff = new BufferedReader(read);
-                StringBuilder dta = new StringBuilder();
-                String chunks;
-                while ((chunks = buff.readLine()) != null) {
-                    dta.append(chunks);
-                }
-//            is = conn.getInputStream();
-
-                // Convert the InputStream into a string
-                downloadResult = dta.toString();
-                return 1;
-            } catch (Exception e) {
-                downloadResult = "Error: ".concat(e.getMessage());
-                return 0;
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        Log.e("Network", e.getMessage());
-                    }
-                }
-            }
         }
 
     }
