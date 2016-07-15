@@ -22,6 +22,7 @@ import java.util.List;
 
 public class NewsHeadersList extends HeadersList {
 
+    private long loadTime = System.currentTimeMillis();
     public static final String PATH_URL = "/ajax/news/%d/12";
 
     public NewsHeadersList(RecyclerView recyclerView, Activity activity, ConnectivityManager connectivityManager) {
@@ -42,15 +43,21 @@ public class NewsHeadersList extends HeadersList {
         Document doc = Jsoup.parse(result);
         Elements rawHeaders = doc.select("div[class=news]");
         Collections.reverse(rawHeaders);
+        int timeCounter = 0;
+        //Allow to add subsequent pages with past dates
+        loadTime = loadTime - (currentPageNumber-1)*DAY_IN_MILLISECONDS;
         for (Element rawHeader : rawHeaders) {
-            ArticleHeader header = new ArticleHeader();
+            ArticleHeader header = new ArticleHeader(db);
             header.setTitle(rawHeader.select("h5").text());
             header.setSubTitle(rawHeader.select("div[class=news-content]").text());
             header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replaceFirst("/", "")));
             header.setArticleImageUrl("");
             header.setLoadDate(System.currentTimeMillis());
             header.setType(1);
+            header.synchronizeWithDB();
+            loadTime = header.getLoadDate();
             headers.add(header);
+            timeCounter++;
         }
         Collections.reverse(headers);
         return headers;

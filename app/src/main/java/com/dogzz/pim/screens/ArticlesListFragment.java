@@ -16,6 +16,7 @@ import com.dogzz.pim.R;
 import com.dogzz.pim.datahandlers.ArticlesHeadersList;
 import com.dogzz.pim.datahandlers.HeadersList;
 import com.dogzz.pim.datahandlers.NewsHeadersList;
+import com.dogzz.pim.datahandlers.SavedHeadersList;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.uihandlers.NavigationItem;
 import com.dogzz.pim.uihandlers.RecyclerItemClickListener;
@@ -148,6 +149,8 @@ public class ArticlesListFragment extends Fragment {
                 return new ArticlesHeadersList(mRecyclerView, getActivity(), connMgr);
             case NEWS:
                 return new NewsHeadersList(mRecyclerView, getActivity(), connMgr);
+            case SAVED:
+                return new SavedHeadersList(mRecyclerView, getActivity(), connMgr);
             default:
                 return null;
         }

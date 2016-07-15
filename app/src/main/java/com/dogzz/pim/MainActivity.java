@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.dogzz.pim.persistence.ArticleDownloader;
 import com.dogzz.pim.persistence.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.screens.ArticleContentFragment;
@@ -112,11 +113,9 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_download) {
             Toast.makeText(this, selectedArticleHeader + " is downloading", Toast.LENGTH_SHORT).show();
-            DBHelper mDBHelper = new DBHelper(this, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-            SQLiteDatabase mDB = mDBHelper.getWritableDatabase();
-            selectedArticleHeader.saveArticleOffline(mDB);
-            if (mDBHelper!=null) mDBHelper.close();
+            ArticleDownloader downloader = new ArticleDownloader(this);
 
+            downloader.saveArticleOffline(selectedArticleHeader);
         }
 
         return super.onOptionsItemSelected(item);
@@ -135,6 +134,7 @@ public class MainActivity extends AppCompatActivity
             articlesListFragment.setNavigationItem(NavigationItem.NEWS);
             Toast.makeText(this, "News is selected", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_saved) {
+            articlesListFragment.setNavigationItem(NavigationItem.SAVED);
             Toast.makeText(this, "Saved is selected", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_settings) {
 

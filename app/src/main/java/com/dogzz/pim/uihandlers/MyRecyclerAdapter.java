@@ -61,10 +61,10 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         customViewHolder.textView.setText(header.getTitle());
 
         if(selectedPosition == position){
-            customViewHolder.itemView.setBackgroundColor(Color.BLACK);
+            customViewHolder.textView.setBackgroundColor(Color.BLACK);
             customViewHolder.textView.setTextColor(Color.WHITE);
         }else{
-            customViewHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
+            customViewHolder.textView.setBackgroundColor(Color.TRANSPARENT);
             if (header.isRead()) {
 //            customViewHolder.parentView.getBackground().setColorFilter(0xA6A6A6A6, PorterDuff.Mode.SRC_IN);
 //            customViewHolder.parentView.setAlpha(0.3f);

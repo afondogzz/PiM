@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 import com.dogzz.pim.R;
 import com.dogzz.pim.asynctask.DownloadTask;
+import com.dogzz.pim.datahandlers.ArticleExtractor;
 import com.dogzz.pim.datahandlers.HeadersList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -154,13 +155,7 @@ public class ArticleContentFragment extends Fragment {
     }
 
     private String extractArticle(String result) {
-        String resultHtml;
-        Document doc = Jsoup.parse(result);
-        Elements heading = doc.select("div[class=heading]");
-        heading.select("div[class*=Breadcrumb]").first().text(""); //remove breadcrumbs
-        heading.select("img").attr("width", "99%");
-        resultHtml = heading.html().concat(doc.select("div[class=mainContent]").html());
-        return resultHtml;
+        return ArticleExtractor.extractArticle(result);
     }
 
     public class DownloadArticleTask extends DownloadTask {

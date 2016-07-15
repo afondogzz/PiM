@@ -87,6 +87,17 @@ public class ArticleHeader {
         setRead(true);
     }
 
+    public void markArticleAsSaved(SQLiteDatabase db, String fileName) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_OFFLINE, 1);
+        cv.put(COLUMN_FILENAME, fileName);
+        selection = COLUMN_URL.concat(" = ? AND ").concat(COLUMN_TYPE).concat(" = ?");
+        selectionArgs = new String[] { articleUrl , String.valueOf(type)};
+        db.update(DB_TABLE, cv, selection, selectionArgs);
+        setFileName(fileName);
+        setOffline(true);
+    }
+
     public String getArticleUrl() {
         return articleUrl;
     }
@@ -159,6 +170,7 @@ public class ArticleHeader {
     public void setType(int type) {
         this.type = type;
     }
+
 }
 
 
