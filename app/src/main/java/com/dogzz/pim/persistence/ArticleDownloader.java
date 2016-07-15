@@ -23,7 +23,7 @@ import static android.provider.Telephony.Mms.Part.FILENAME;
  */
 public class ArticleDownloader {
     private static final String LOG_TAG = "ArticleDownloader";
-    private static final String FILE_EXT = ".html";
+    public static final String FILE_EXT = ".html";
     protected Activity mainActivity;
     private String downloadResult;
     private SQLiteDatabase db;

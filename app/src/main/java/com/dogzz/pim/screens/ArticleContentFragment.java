@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.*;
 
 import android.webkit.WebView;
@@ -14,6 +15,7 @@ import com.dogzz.pim.R;
 import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.datahandlers.ArticleExtractor;
 import com.dogzz.pim.datahandlers.HeadersList;
+import com.dogzz.pim.persistence.ArticleDownloader;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -30,8 +32,10 @@ import java.io.*;
  */
 public class ArticleContentFragment extends Fragment {
     private static final String ARTICLE_URL = "articleUrl";
+    private static final String IS_SAVED = "isSaved";
 
     private String articleUrl;
+    private boolean isArticleSaved;
 
     private OnFragmentInteractionListener mListener;
     private WebView webView;
@@ -48,10 +52,11 @@ public class ArticleContentFragment extends Fragment {
      * @param url Parameter 1.
      * @return A new instance of fragment ArticleContentFragment.
      */
-    public static ArticleContentFragment newInstance(String url) {
+    public static ArticleContentFragment newInstance(String url, boolean isSaved) {
         ArticleContentFragment fragment = new ArticleContentFragment();
         Bundle args = new Bundle();
         args.putString(ARTICLE_URL, url);
+        args.putBoolean(IS_SAVED, isSaved);
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,6 +67,7 @@ public class ArticleContentFragment extends Fragment {
 //        setHasOptionsMenu(true);
         if (getArguments() != null) {
             articleUrl = getArguments().getString(ARTICLE_URL);
+            isArticleSaved = getArguments().getBoolean(IS_SAVED);
         }
     }
 
@@ -70,18 +76,24 @@ public class ArticleContentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_article_content, container, false);
         webView = (WebView) view.findViewById(R.id.webView);
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        DownloadTask downloadTask = new DownloadArticleTask();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            downloadTask.execute(articleUrl);
+        if (!isArticleSaved) {
+            ConnectivityManager connMgr = (ConnectivityManager)
+                    getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            DownloadTask downloadTask = new DownloadArticleTask();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                downloadTask.execute(articleUrl);
+            } else {
+                downloadResult = "Error: The network is not available. You can read Offline articles.";
+                Toast.makeText(getActivity(), downloadResult, Toast.LENGTH_SHORT).show();
+            }
         } else {
-            downloadResult = "Error: The network is not available. You can read Offline articles.";
-            Toast.makeText(getActivity(), downloadResult, Toast.LENGTH_SHORT).show();
+            loadDataFromFile(articleUrl);
         }
         return view;
     }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -138,6 +150,27 @@ public class ArticleContentFragment extends Fragment {
 //                return true;
 //        }
         return true;
+    }
+
+    private void loadDataFromFile(String fileName) {
+        try {
+            String pureArticle = readFile(fileName);
+            webView.loadDataWithBaseURL(HeadersList.BASE_URL, pureArticle, "text/html", null, "");
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), "Something went wrong with read data. ".concat(e.getMessage()),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String readFile(String fileName) throws IOException {
+        String pureArticle = "";
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    getActivity().openFileInput(fileName.concat(ArticleDownloader.FILE_EXT))));
+            String str = "";
+            while ((str = br.readLine()) != null) {
+                pureArticle = pureArticle.concat(str);
+            }
+        return pureArticle;
     }
 
     public void loadData(int result) {

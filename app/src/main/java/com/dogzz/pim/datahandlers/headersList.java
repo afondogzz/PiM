@@ -28,7 +28,7 @@ public abstract class HeadersList implements Serializable{
     protected int currentPageNumber = 0;
     public static final String BASE_URL = "http://petrimazepa.com";
     public static final String PATH_URL = "/ajax/articles/%d/12";
-    public static final int DAY_IN_MILLISECONDS = 86400000;
+    public static final int DAY_IN_SECONDS = 86400;
     protected RecyclerView recyclerView;
     protected MyRecyclerAdapter adapter;
     protected Activity mainActivity;
@@ -73,7 +73,7 @@ public abstract class HeadersList implements Serializable{
         loadArticlesHeaders(currentPageNumber, updateFromSource);
     }
 
-    private void populateData(Integer result) {
+    protected void populateData(Integer result) {
         if (result == 1) {
             try {
                 if (adapter == null) {

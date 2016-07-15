@@ -160,7 +160,11 @@ public class MainActivity extends AppCompatActivity
         isContextBarVisible = false;
         switchActionBarToggle(false);
         selectedArticleHeader = header;
-        articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl());
+        if (selectedArticleHeader.isOffline()) {
+            articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true);
+        } else {
+            articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl(), false);
+        }
         fTrans = getSupportFragmentManager().beginTransaction();
 //        fTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fTrans.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);

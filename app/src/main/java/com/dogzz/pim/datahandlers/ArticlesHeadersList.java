@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ArticlesHeadersList extends HeadersList {
 
-    private long loadTime = System.currentTimeMillis();
+    private long loadTime = System.currentTimeMillis() / 1000;
 
     public ArticlesHeadersList(RecyclerView recyclerView, Activity activity, ConnectivityManager connectivityManager) {
         super(recyclerView, activity, connectivityManager);
@@ -43,7 +43,7 @@ public class ArticlesHeadersList extends HeadersList {
         Collections.reverse(rawHeaders);
         int timeCounter = 0;
         //Allow to add subsequent pages with past dates
-        loadTime = loadTime - (currentPageNumber-1)*DAY_IN_MILLISECONDS;
+        loadTime = loadTime - (currentPageNumber-1)* DAY_IN_SECONDS;
         for (Element rawHeader : rawHeaders) {
             ArticleHeader header = new ArticleHeader(db);
             header.setTitle(rawHeader.select("h4").text());
