@@ -14,6 +14,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.exception.SourceConnectException;
@@ -74,11 +75,16 @@ public class SavedHeadersList extends HeadersList {
         return headers;
     }
 
-//    @Override
-//    public void loadArticlesHeaders(int pageNumber, boolean updateFromSource) {
-//        mDBHelper = new DBHelper(mainActivity, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
-//        db = mDBHelper.getWritableDatabase();
-//    }
+    @Override
+    public void loadArticlesHeaders(int pageNumber, boolean updateFromSource) {
+        currentPageNumber = pageNumber;
+        try {
+            loadArticlesListFromSource();
+        } catch (SourceConnectException e) {
+            downloadResult = "Error: Unable to connect to the source. Check your internet settings.";
+            Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_SHORT).show();
+        }
+    }
 
    private class LoadArticlesListTask extends DownloadTask {
 

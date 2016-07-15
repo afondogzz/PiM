@@ -59,9 +59,11 @@ public abstract class HeadersList implements Serializable{
                     loadArticlesListFromSource();
                 } else {
                     downloadResult = "Error: The network is not available. You can read Offline articles.";
+                    Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_LONG).show();
                 }
             } catch (SourceConnectException e) {
                 downloadResult = "Error: Unable to connect to the source. Check your internet settings.";
+                Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -110,7 +112,8 @@ public abstract class HeadersList implements Serializable{
     }
 
     public void unselectAllItems() {
-        adapter.unselectAllItems();
+        if (adapter != null)
+            adapter.unselectAllItems();
     }
 
     protected abstract List<ArticleHeader> extractArticlesHeaders(String result, SQLiteDatabase db);
