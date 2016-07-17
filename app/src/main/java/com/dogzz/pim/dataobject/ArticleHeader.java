@@ -72,7 +72,7 @@ public class ArticleHeader {
         if (cursor.moveToFirst()) {
             setRead(cursor.getInt(cursor.getColumnIndex(COLUMN_READ)) == 1);
             setOffline(cursor.getInt(cursor.getColumnIndex(COLUMN_OFFLINE)) == 1);
-            setLoadDate(cursor.getInt(cursor.getColumnIndex(COLUMN_LOAD_DATE)));
+            setLoadDate(cursor.getLong(cursor.getColumnIndex(COLUMN_LOAD_DATE)));
             setFileName(cursor.getString(cursor.getColumnIndex(COLUMN_FILENAME)));
         }
 

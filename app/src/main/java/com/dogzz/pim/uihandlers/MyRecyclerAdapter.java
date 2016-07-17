@@ -59,7 +59,11 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         }
         //Setting text view title
         customViewHolder.textView.setText(header.getTitle());
-
+        if (header.isOffline()) {
+            customViewHolder.isSavedImage.setVisibility(View.VISIBLE);
+        } else {
+            customViewHolder.isSavedImage.setVisibility(View.INVISIBLE);
+        }
         if(selectedPosition == position){
             customViewHolder.textView.setBackgroundColor(Color.BLACK);
             customViewHolder.textView.setTextColor(Color.WHITE);
@@ -97,10 +101,12 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
     static class CustomViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textView;
+        ImageView isSavedImage;
 
         CustomViewHolder(View view) {
             super(view);
             this.imageView = (ImageView) view.findViewById(R.id.articleimage);
+            this.isSavedImage = (ImageView) view.findViewById(R.id.issaved);
             this.textView = (TextView) view.findViewById(R.id.articletitle);
         }
     }

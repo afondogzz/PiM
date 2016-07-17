@@ -19,6 +19,7 @@ import com.dogzz.pim.datahandlers.NewsHeadersList;
 import com.dogzz.pim.datahandlers.SavedHeadersList;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.uihandlers.NavigationItem;
+import com.dogzz.pim.uihandlers.ProgressPosition;
 import com.dogzz.pim.uihandlers.RecyclerItemClickListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,15 +32,12 @@ import org.jetbrains.annotations.NotNull;
  * create an instance of this fragment.
  */
 public class ArticlesListFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String NAVIGATION_ITEM = "navigationItem";
     private static final String ARTICLE_URL = "url";
 
     private static final String PAGES_DISPLAYED = "pagesDisplayed";
     HeadersList headersList;
     private RecyclerView mRecyclerView;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
     private View view;
 
     private NavigationItem navigationItem = NavigationItem.ARTICLES;
@@ -59,7 +57,6 @@ public class ArticlesListFragment extends Fragment {
      * @param navigationItem
      * @return A new instance of fragment ArticlesListFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ArticlesListFragment newInstance(NavigationItem navigationItem) {
         ArticlesListFragment fragment = new ArticlesListFragment();
         Bundle args = new Bundle();
@@ -83,7 +80,6 @@ public class ArticlesListFragment extends Fragment {
             view = inflater.inflate(R.layout.fragment_articles_list, container, false);
             connMgr = (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-            mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
             mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             headersList = getHeadersListInstance(connMgr);
@@ -115,22 +111,14 @@ public class ArticlesListFragment extends Fragment {
 //        mLayoutManager = new LinearLayoutManager(this);
 //        mRecyclerView.setLayoutManager(mLayoutManager);
 
-            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    Toast.makeText(getActivity(), "REFRESH", Toast.LENGTH_SHORT).show();
-                    mSwipeRefreshLayout.setRefreshing(false);
-                }
-            });
-
-            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+             mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
                     if (!recyclerView.canScrollVertically(-1)) {
-//                    onScrolledToTop();
+//                    refreshContent();
                     } else if (!recyclerView.canScrollVertically(1)) {
-                      loadNextPageIntoView();
+                        loadNextPageIntoView();
                     } else if (dy < 0) {
 //                    onScrolledUp();
                     } else if (dy > 0) {
@@ -158,6 +146,10 @@ public class ArticlesListFragment extends Fragment {
 
     private void loadNextPageIntoView() {
         headersList.loadNextPage(true);
+    }
+
+    public void refreshContent() {
+        headersList.refreshContent();
     }
 
     public void onArticleClicked(ArticleHeader articleHeader) {
@@ -220,5 +212,7 @@ public class ArticlesListFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onArticleClicked(ArticleHeader header);
         void onArticleLongClicked(ArticleHeader header);
+        void onJobStarted(ProgressPosition position);
+        void onJobFinished();
     }
 }

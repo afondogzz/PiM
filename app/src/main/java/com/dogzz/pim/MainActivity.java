@@ -1,19 +1,24 @@
 package com.dogzz.pim;
 
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.*;
 
-import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.dogzz.pim.persistence.ArticleDownloader;
@@ -21,7 +26,11 @@ import com.dogzz.pim.persistence.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.screens.ArticleContentFragment;
 import com.dogzz.pim.screens.ArticlesListFragment;
+import com.dogzz.pim.screens.SettingsFragment;
 import com.dogzz.pim.uihandlers.NavigationItem;
+import com.dogzz.pim.uihandlers.ProgressPosition;
+
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity
@@ -38,19 +47,26 @@ public class MainActivity extends AppCompatActivity
     private Menu mainMenu;
     private ArticleHeader selectedArticleHeader;
     private boolean isContextBarVisible = false;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setLanguageToSelected();
         setContentView(R.layout.activity_main);
-            articlesListFragment = ArticlesListFragment.newInstance(NavigationItem.ARTICLES);
-            fTrans = getSupportFragmentManager().beginTransaction();
-            fTrans.add(R.id.frgmContainer, articlesListFragment);
-            fTrans.commit();
+        articlesListFragment = ArticlesListFragment.newInstance(NavigationItem.ARTICLES);
+        fTrans = getSupportFragmentManager().beginTransaction();
+        fTrans.add(R.id.frgmContainer, articlesListFragment);
+        fTrans.commit();
 //        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
+//        progressBar.setVisibility(View.VISIBLE);
+
+
 //        ConnectivityManager connMgr =  (ConnectivityManager)
 //                getSystemService(Context.CONNECTIVITY_SERVICE);
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -72,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_articles);
+        getSupportActionBar().setTitle(R.string.articles);
         // Navigation back icon listener
         toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +96,7 @@ public class MainActivity extends AppCompatActivity
                 onBackPressed();
             }
         });
+
     }
 
     @Override
@@ -87,6 +105,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            selectedArticleHeader = null;
             if (!isContextBarVisible) {
                 super.onBackPressed();
             }
@@ -101,6 +120,7 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main, menu);
         menu.setGroupVisible(R.id.menu_group1, true);
         menu.setGroupVisible(R.id.menu_group2, false);
+        menu.setGroupVisible(R.id.menu_group3, false);
         this.mainMenu = menu;
         return true;
     }
@@ -108,16 +128,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.action_refresh) {
+            articlesListFragment.refreshContent();
             return true;
         } else if (id == R.id.action_download) {
             Toast.makeText(this, selectedArticleHeader + " is downloading", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
-
             downloader.saveArticleOffline(selectedArticleHeader);
+            return true;
+        } else if (id == R.id.action_delete) {
+            Toast.makeText(this, selectedArticleHeader + " is deleting", Toast.LENGTH_SHORT).show();
+            ArticleDownloader downloader = new ArticleDownloader(this);
+            downloader.removeArticle(selectedArticleHeader);
+            return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -129,15 +153,20 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_articles) {
             Toast.makeText(this, "Articles is selected", Toast.LENGTH_SHORT).show();
+            getSupportActionBar().setTitle(R.string.articles);
             articlesListFragment.setNavigationItem(NavigationItem.ARTICLES);
         } else if (id == R.id.nav_news) {
+            getSupportActionBar().setTitle(R.string.news);
             articlesListFragment.setNavigationItem(NavigationItem.NEWS);
             Toast.makeText(this, "News is selected", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_saved) {
+            getSupportActionBar().setTitle(R.string.saved);
             articlesListFragment.setNavigationItem(NavigationItem.SAVED);
             Toast.makeText(this, "Saved is selected", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_settings) {
-
+            getSupportActionBar().setTitle(R.string.settings);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frgmContainer, new SettingsFragment()).addToBackStack(null).commit();
         } else if (id == R.id.nav_about) {
 
         }
@@ -158,13 +187,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onArticleClicked(ArticleHeader header) {
         isContextBarVisible = false;
-        switchActionBarToggle(false);
         selectedArticleHeader = header;
+        switchActionBarToggle(false);
         if (selectedArticleHeader.isOffline()) {
             articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true);
         } else {
             articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl(), false);
         }
+        onJobStarted(ProgressPosition.CENTER);
         fTrans = getSupportFragmentManager().beginTransaction();
 //        fTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fTrans.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
@@ -176,20 +206,57 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onArticleLongClicked(ArticleHeader header) {
         isContextBarVisible = true;
-        switchActionBarToggle(false);
         selectedArticleHeader = header;
+        switchActionBarToggle(false);
+    }
+
+    @Override
+    public void onJobStarted(ProgressPosition position) {
+        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(progressBar.getLayoutParams());
+        switch (position) {
+            case TOP:
+                params.gravity = Gravity.TOP;
+                break;
+            case CENTER:
+                params.gravity = Gravity.CENTER;
+                break;
+            case BOTTOM:
+                params.gravity = Gravity.BOTTOM;
+                break;
+        }
+        progressBar.setLayoutParams(params);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onJobFinished() {
+        progressBar.setVisibility(View.GONE);
     }
 
     private void switchActionBarToggle(boolean toNavigationDraw) {
         mainMenu.setGroupVisible(R.id.menu_group1, toNavigationDraw);
-        mainMenu.setGroupVisible(R.id.menu_group2, !toNavigationDraw);
+//        mainMenu.setGroupVisible(R.id.menu_group2, !toNavigationDraw);
+//        mainMenu.setGroupVisible(R.id.menu_group3, !toNavigationDraw);
+        if (selectedArticleHeader != null && selectedArticleHeader.isOffline()) {
+            mainMenu.setGroupVisible(R.id.menu_group2, false);
+            mainMenu.setGroupVisible(R.id.menu_group3, !toNavigationDraw);
+        } else {
+            mainMenu.setGroupVisible(R.id.menu_group2, !toNavigationDraw);
+            mainMenu.setGroupVisible(R.id.menu_group3, false);
+        }
         toggle.setDrawerIndicatorEnabled(toNavigationDraw);
         getSupportActionBar().setDisplayHomeAsUpEnabled(!toNavigationDraw);
         toggle.syncState();
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
+    private void setLanguageToSelected() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String lang = preferences.getString("lang", "en");
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config,
+                getBaseContext().getResources().getDisplayMetrics());
     }
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+            android:title="asasas">
+
+
+    <CheckBoxPreference
+            android:key="chb1"
+            android:summary="cheboxeg"
+            android:title="cheboxeg title">
+    </CheckBoxPreference>
+    <EditTextPreference
+            android:key="address1"
+            android:summary="%s"
+            android:title="edit text title">
+    </EditTextPreference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/localization">
+        <ListPreference
+                android:entries="@array/lang_entries"
+                android:entryValues="@array/lang_values"
+                android:key="lang"
+                android:summary="%s"
+                android:title="@string/language">
+        </ListPreference>
+    </PreferenceCategory>
+
+    <ListPreference
+            android:entries="@array/entries"
+            android:entryValues="@array/entry_values"
+            android:key="list1"
+            android:summary="%s"
+            android:title="listeg title">
+    </ListPreference>
+
+</PreferenceScreen>

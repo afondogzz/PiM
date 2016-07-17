@@ -30,8 +30,8 @@ public abstract class DownloadTask extends AsyncTask<String, Void, Integer> {
         try {
             URL url = new URL(myurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setReadTimeout(20000 /* milliseconds */);
+            conn.setConnectTimeout(30000 /* milliseconds */);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             // Starts the query
@@ -51,8 +51,8 @@ public abstract class DownloadTask extends AsyncTask<String, Void, Integer> {
             // Convert the InputStream into a string
             return 1;
         } catch (Exception e) {
-            Log.e("Network", e.getMessage());
-            resultMessage = e.getMessage();
+            resultMessage = "Error during downloading source" + e.getMessage();
+            Log.e("Network", resultMessage);
             return 0;
             // Makes sure that the InputStream is closed after the app is
             // finished using it.

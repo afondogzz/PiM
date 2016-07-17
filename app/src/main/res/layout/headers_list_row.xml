@@ -34,5 +34,14 @@
                 android:textAppearance="@android:style/TextAppearance.Material.Body1"
                 style="@android:style/TextAppearance.Material.Body1"/>
 
+        <ImageView
+                android:id="@+id/issaved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_save_black_18dp" />
+
     </RelativeLayout>
 </android.support.v7.widget.CardView>

@@ -52,7 +52,7 @@ public class NewsHeadersList extends HeadersList {
             header.setSubTitle(rawHeader.select("div[class=news-content]").text());
             header.setArticleUrl(BASE_URL.concat("/").concat(rawHeader.select("a").attr("href").replaceFirst("/", "")));
             header.setArticleImageUrl("");
-            header.setLoadDate(System.currentTimeMillis());
+            header.setLoadDate(loadTime + timeCounter);
             header.setType(1);
             header.synchronizeWithDB();
             loadTime = header.getLoadDate();

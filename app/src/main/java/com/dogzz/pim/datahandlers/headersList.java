@@ -10,7 +10,9 @@ import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.persistence.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import com.dogzz.pim.exception.SourceConnectException;
+import com.dogzz.pim.screens.ArticlesListFragment;
 import com.dogzz.pim.uihandlers.MyRecyclerAdapter;
+import com.dogzz.pim.uihandlers.ProgressPosition;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public abstract class HeadersList implements Serializable{
     protected MyRecyclerAdapter adapter;
     protected Activity mainActivity;
     protected ConnectivityManager connectivityManager;
+    protected ArticlesListFragment.OnFragmentInteractionListener mListener;
 //    public static final String TMP_FILE_PATH = "/temp";
 //    public static final String SAVED_FILE_PATH = "/saved";
 
@@ -48,6 +51,9 @@ public abstract class HeadersList implements Serializable{
         this.recyclerView = recyclerView;
         this.mainActivity = activity;
         this.connectivityManager = connectivityManager;
+        if (mainActivity instanceof ArticlesListFragment.OnFragmentInteractionListener) {
+            mListener = ((ArticlesListFragment.OnFragmentInteractionListener) mainActivity);
+        }
     }
 
     public void loadArticlesHeaders(int pageNumber, boolean updateFromSource) {
@@ -56,6 +62,7 @@ public abstract class HeadersList implements Serializable{
                 NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
                 if (networkInfo != null && networkInfo.isConnected()) {
                     currentPageNumber = pageNumber;
+                    mListener.onJobStarted(currentPageNumber == 1 ? ProgressPosition.CENTER : ProgressPosition.BOTTOM);
                     loadArticlesListFromSource();
                 } else {
                     downloadResult = "Error: The network is not available. You can read Offline articles.";
@@ -75,6 +82,14 @@ public abstract class HeadersList implements Serializable{
         loadArticlesHeaders(currentPageNumber, updateFromSource);
     }
 
+    public void refreshContent() {
+//        int itemsCount = articlesHeaders.size();
+        articlesHeaders.clear();
+//        adapter.notifyItemRangeRemoved(0, itemsCount);
+        adapter = null;
+        loadArticlesHeaders(1, true);
+    }
+
     protected void populateData(Integer result) {
         if (result == 1) {
             try {
@@ -90,12 +105,14 @@ public abstract class HeadersList implements Serializable{
                 if (mDBHelper!=null) mDBHelper.close();
                 int endCount = articlesHeaders.size();
                 adapter.notifyItemRangeInserted(startCount, endCount - startCount);
+                mListener.onJobFinished();
             } catch (Exception e) {
                 Toast.makeText(mainActivity, "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_SHORT).show();
+            mListener.onJobFinished();
         }
     }
 

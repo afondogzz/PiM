@@ -16,6 +16,7 @@ import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.datahandlers.ArticleExtractor;
 import com.dogzz.pim.datahandlers.HeadersList;
 import com.dogzz.pim.persistence.ArticleDownloader;
+import com.dogzz.pim.uihandlers.ProgressPosition;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -64,7 +65,6 @@ public class ArticleContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setHasOptionsMenu(true);
         if (getArguments() != null) {
             articleUrl = getArguments().getString(ARTICLE_URL);
             isArticleSaved = getArguments().getBoolean(IS_SAVED);
@@ -93,15 +93,6 @@ public class ArticleContentFragment extends Fragment {
         return view;
     }
 
-
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -116,46 +107,20 @@ public class ArticleContentFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        if (mListener != null) mListener.onJobFinished();
         mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        inflater.inflate(R.menu.article_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Get item selected and deal with it
-//        switch (item.getItemId()) {
-//            case android.R.id.home:
-//                //called when the up affordance/carat in actionbar is pressed
-//                getActivity().onBackPressed();
-//                return true;
-//        }
-        return true;
     }
 
     private void loadDataFromFile(String fileName) {
         try {
             String pureArticle = readFile(fileName);
             webView.loadDataWithBaseURL(HeadersList.BASE_URL, pureArticle, "text/html", null, "");
+            if (mListener != null) mListener.onJobFinished();
         } catch (Exception e) {
             Toast.makeText(getActivity(), "Something went wrong with read data. ".concat(e.getMessage()),
                     Toast.LENGTH_SHORT).show();
@@ -178,6 +143,7 @@ public class ArticleContentFragment extends Fragment {
             try {
                 String pureArticle = extractArticle(downloadResult);
                 webView.loadDataWithBaseURL(HeadersList.BASE_URL, pureArticle, "text/html", null, "");
+                if (mListener != null) mListener.onJobFinished();
             } catch (Exception e) {
                 Toast.makeText(getActivity(), "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
@@ -206,12 +172,25 @@ public class ArticleContentFragment extends Fragment {
             return result;
         }
 
-        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(Integer result) {
             downloadResult = resultMessage;
             loadData(result);
         }
+    }
 
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        void onJobStarted(ProgressPosition position);
+        void onJobFinished();
     }
 }

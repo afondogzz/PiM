@@ -23,6 +23,11 @@ public class ArticleExtractor {
 //        mainContent.select("iframe[src*=youtube]").attr("width", "99%");
         mainContent.select("iframe").attr("width", "99%").removeAttr("height");
         mainContent.select("iframe").attr("height", "99%");
+        Elements iframes = mainContent.select("iframe").tagName("a");
+        for (Element iframe : iframes) {
+            String url = iframe.attr("src");
+            iframe.attr("href", url).text("YouTube Video").removeAttr("src");
+        }
         resultHtml = heading.html().concat(mainContent.html());
         return resultHtml;
     }
