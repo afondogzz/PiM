@@ -47,11 +47,23 @@ public class ArticleDownloader {
         downloadTask.execute(header.getArticleUrl());
     }
 
-    public void removeArticle(ArticleHeader selectedArticleHeader) {
-        this.header = selectedArticleHeader;
+    public void removeArticle(ArticleHeader header) {
+        this.header = header;
         mDBHelper = new DBHelper(mainActivity, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);
         db = mDBHelper.getWritableDatabase();
+        String path = mainActivity.getFilesDir().getAbsolutePath().concat("/").concat(header.getFileName());
+        File file = new File(path); //Создаем файловую переменную
+        if (file.exists()) { //Если файл или директория существует
+            String deleteCmd = "rm -r " + path; //Создаем текстовую командную строку
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                runtime.exec(deleteCmd); //Выполняем системные команды
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Can't delete file: " + e.getMessage());
+            }
+        }
         //TODO implement removal of article file and associated pictures
+        header.markArticleAsNotSaved(db);
         if (mDBHelper!=null) mDBHelper.close();
     }
 
@@ -77,9 +89,11 @@ public class ArticleDownloader {
             if (result == 1) {
                 try {
                     String pureArticle = extractArticle(content);
-                    String articleWithoutImg = makeImagesLocal(pureArticle);
+                    String fileName = generateFileName();
+                    String path = generatePath(fileName);
+                    String articleWithoutImg = makeImagesLocal(pureArticle, path);
                     //save
-                    String fileName = saveToFile(articleWithoutImg);
+                    saveToFile(articleWithoutImg, path, fileName);
                     saveResultToDB(fileName);
                     if (mDBHelper!=null) mDBHelper.close();
                     return 1;
@@ -93,22 +107,31 @@ public class ArticleDownloader {
             }
         }
 
-        private String saveToFile(String pureArticle) throws IOException{
+        private String generateFileName() {
             String fileName = header.getArticleUrl().replace(BASE_URL, "");
             fileName = fileName.substring(fileName.lastIndexOf("/") + 1, fileName.length());
             if (fileName.contains(".")) {
                 fileName = fileName.substring(0,  fileName.lastIndexOf("."));
             }
-            writeFile(pureArticle, fileName);
             return fileName;
         }
 
-        private void writeFile(String pureArticle, String fileName) throws IOException{
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
-                        mainActivity.openFileOutput(fileName.concat(FILE_EXT), MODE_PRIVATE)));
-                bw.write(pureArticle);
-                bw.close();
-                Log.d(LOG_TAG, "File written");
+        private String generatePath(String fileName) {
+            String path = mainActivity.getFilesDir().getAbsolutePath().concat("/").concat(fileName);
+            File dir = new File(path);
+            boolean result = dir.mkdir();
+            //(fileName, MODE_PRIVATE);
+            return path;
+        }
+
+        private void saveToFile(String pureArticle, String path, String fileName) throws IOException{
+            FileOutputStream fout = new FileOutputStream(path.concat("/")
+                    .concat(fileName.concat(FILE_EXT)));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fout));
+//                        mainActivity.openFileOutput(fileName.concat(FILE_EXT), MODE_PRIVATE)));
+            bw.write(pureArticle);
+            bw.close();
+            Log.d(LOG_TAG, "File written");
         }
 
         private void saveResultToDB(String fileName) {
@@ -119,21 +142,21 @@ public class ArticleDownloader {
             return ArticleExtractor.extractArticle(downloadResult);
         }
 
-        private String makeImagesLocal(String pureArticle) {
+        private String makeImagesLocal(String pureArticle, String path) {
             String resultHtml = pureArticle;
             Document doc = Jsoup.parse(pureArticle);
             Elements imgTags = doc.select("img");
             for (Element imgTag: imgTags) {
                 String imageUrl = imgTag.attr("src");
-                String imageFileName = downloadImage(imageUrl);
-                makeImgLinksLocal(imageFileName, imgTag);
+                String imageFileName = downloadImage(imageUrl, path);
+                makeImgLinksLocal(imageFileName, imgTag, path);
             }
             return resultHtml = doc.html();
         }
 
 
 
-        private String downloadImage(String imageUrl) {
+        private String downloadImage(String imageUrl, String path) {
             String url = imageUrl;
             String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.length());
             FileOutputStream out = null;
@@ -142,7 +165,8 @@ public class ArticleDownloader {
             }
             try {
                 Bitmap bmp = Picasso.with(mainActivity).load(url).get();
-                out = mainActivity.openFileOutput(filename, MODE_PRIVATE);
+//                out = mainActivity.openFileOutput(filename, MODE_PRIVATE);
+                out = new FileOutputStream(path.concat("/").concat(filename));
                 String format = filename.substring(filename.lastIndexOf(".") + 1, filename.length()).toUpperCase();
                 format = format.replace("JPG", "JPEG");
                 Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(format);
@@ -161,8 +185,8 @@ public class ArticleDownloader {
             return filename;
         }
 
-        private void makeImgLinksLocal(String imageFileName, Element imgTag) {
-            imgTag.attr("src", "file://".concat(mainActivity.getFilesDir().getAbsolutePath())
+        private void makeImgLinksLocal(String imageFileName, Element imgTag, String path) {
+            imgTag.attr("src", "file://".concat(path)
                     .concat("/").concat(imageFileName));
         }
 
@@ -177,7 +201,6 @@ public class ArticleDownloader {
                 Toast.makeText(mainActivity, resultMessage,
                         Toast.LENGTH_LONG).show();
             }
-            mainActivity.onBackPressed();
 //            saveArticleContent(result);
         }
     }

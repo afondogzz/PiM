@@ -19,6 +19,7 @@
 
     <string name="localization">Localization</string>
     <string name="language">Language</string>
+    <string name="feedback">Send Feedback</string>
 
     <string-array name="entries">
         <item>one</item>

@@ -98,6 +98,17 @@ public class ArticleHeader {
         setOffline(true);
     }
 
+    public void markArticleAsNotSaved(SQLiteDatabase db) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_OFFLINE, 0);
+        cv.put(COLUMN_FILENAME, "");
+        selection = COLUMN_URL.concat(" = ? AND ").concat(COLUMN_TYPE).concat(" = ?");
+        selectionArgs = new String[] { articleUrl , String.valueOf(type)};
+        db.update(DB_TABLE, cv, selection, selectionArgs);
+        setFileName("");
+        setOffline(false);
+    }
+
     public String getArticleUrl() {
         return articleUrl;
     }

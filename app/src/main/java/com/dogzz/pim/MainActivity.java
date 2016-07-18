@@ -48,13 +48,16 @@ public class MainActivity extends AppCompatActivity
     private ArticleHeader selectedArticleHeader;
     private boolean isContextBarVisible = false;
     private ProgressBar progressBar;
+    private String previousTitle = "";
+    private NavigationItem selectedNavigationItem = NavigationItem.ARTICLES;
+    private NavigationItem previousNavigationItem = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setLanguageToSelected();
         setContentView(R.layout.activity_main);
-        articlesListFragment = ArticlesListFragment.newInstance(NavigationItem.ARTICLES);
+        articlesListFragment = ArticlesListFragment.newInstance(selectedNavigationItem);
         fTrans = getSupportFragmentManager().beginTransaction();
         fTrans.add(R.id.frgmContainer, articlesListFragment);
         fTrans.commit();
@@ -112,6 +115,10 @@ public class MainActivity extends AppCompatActivity
             articlesListFragment.unselectAllItems();
             isContextBarVisible = false;
             switchActionBarToggle(true);
+            selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
+            previousNavigationItem = null;
+            getSupportActionBar().setTitle(selectedNavigationItem.getStringId());
+
         }
     }
 
@@ -132,14 +139,16 @@ public class MainActivity extends AppCompatActivity
             articlesListFragment.refreshContent();
             return true;
         } else if (id == R.id.action_download) {
-            Toast.makeText(this, selectedArticleHeader + " is downloading", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, selectedArticleHeader.getTitle() + " is downloading", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.saveArticleOffline(selectedArticleHeader);
+            articlesListFragment.unselectAllItems();
             return true;
         } else if (id == R.id.action_delete) {
-            Toast.makeText(this, selectedArticleHeader + " is deleting", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, selectedArticleHeader.getTitle() + " is deleting", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.removeArticle(selectedArticleHeader);
+            articlesListFragment.unselectAllItems();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -152,27 +161,46 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_articles) {
-            Toast.makeText(this, "Articles is selected", Toast.LENGTH_SHORT).show();
-            getSupportActionBar().setTitle(R.string.articles);
-            articlesListFragment.setNavigationItem(NavigationItem.ARTICLES);
+            selectNavigationItem(NavigationItem.ARTICLES);
+
         } else if (id == R.id.nav_news) {
+            selectNavigationItem(NavigationItem.NEWS);
             getSupportActionBar().setTitle(R.string.news);
-            articlesListFragment.setNavigationItem(NavigationItem.NEWS);
-            Toast.makeText(this, "News is selected", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_saved) {
+            selectNavigationItem(NavigationItem.SAVED);
             getSupportActionBar().setTitle(R.string.saved);
-            articlesListFragment.setNavigationItem(NavigationItem.SAVED);
-            Toast.makeText(this, "Saved is selected", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_settings) {
-            getSupportActionBar().setTitle(R.string.settings);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frgmContainer, new SettingsFragment()).addToBackStack(null).commit();
+            previousTitle = getSupportActionBar().getTitle().toString();
+            selectNavigationItem(NavigationItem.SETTINGS);
         } else if (id == R.id.nav_about) {
 
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void selectNavigationItem(NavigationItem navigationItem) {
+        if (selectedNavigationItem != navigationItem) {
+            Toast.makeText(this, navigationItem.toString() + " is selected", Toast.LENGTH_SHORT).show();
+            previousNavigationItem = selectedNavigationItem;
+            selectedNavigationItem = navigationItem;
+            getSupportActionBar().setTitle(navigationItem.getStringId());
+            switch (navigationItem) {
+                case ARTICLES:
+                case NEWS:
+                case SAVED:
+                    articlesListFragment.setNavigationItem(navigationItem);
+                    break;
+                case SETTINGS:
+                    getSupportActionBar().setTitle(R.string.settings);
+                    switchActionBarToggle(false);
+                    mainMenu.setGroupVisible(R.id.menu_group2, false);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frgmContainer, new SettingsFragment()).addToBackStack(null).commit();
+                    break;
+            }
+        }
     }
 
     @Override
@@ -188,6 +216,7 @@ public class MainActivity extends AppCompatActivity
     public void onArticleClicked(ArticleHeader header) {
         isContextBarVisible = false;
         selectedArticleHeader = header;
+        previousNavigationItem = selectedNavigationItem;
         switchActionBarToggle(false);
         if (selectedArticleHeader.isOffline()) {
             articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true);

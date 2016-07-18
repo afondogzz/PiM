@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#A0A0A0</color>
     <color name="colorPrimaryDark">#222</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#F7E026</color>
     <color name="textColor">#222</color>>
     <color name="textColorGrayed">#A0A0A0</color>>
     <color name="preference_accent">@color/colorAccent</color>

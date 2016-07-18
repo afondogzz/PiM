@@ -129,12 +129,14 @@ public class ArticleContentFragment extends Fragment {
 
     private String readFile(String fileName) throws IOException {
         String pureArticle = "";
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    getActivity().openFileInput(fileName.concat(ArticleDownloader.FILE_EXT))));
-            String str = "";
-            while ((str = br.readLine()) != null) {
-                pureArticle = pureArticle.concat(str);
-            }
+        String path = getActivity().getFilesDir().getAbsolutePath().concat("/").concat(fileName);
+        FileInputStream fin = new FileInputStream(path.concat("/")
+                .concat(fileName.concat(ArticleDownloader.FILE_EXT)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(fin));
+        String str = "";
+        while ((str = br.readLine()) != null) {
+            pureArticle = pureArticle.concat(str);
+        }
         return pureArticle;
     }
 

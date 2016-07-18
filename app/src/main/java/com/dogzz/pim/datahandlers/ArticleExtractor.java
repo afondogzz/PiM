@@ -19,7 +19,7 @@ public class ArticleExtractor {
         heading.select("div[class*=Breadcrumb]").first().text(""); //remove breadcrumbs
         heading.select("img").attr("width", "99%"); //resize images
         Elements mainContent = doc.select("div[class=mainContent]");
-        mainContent.select("img").attr("width", "99%"); //resize images
+        mainContent.select("img").attr("width", "99%").removeAttr("height"); //resize images
 //        mainContent.select("iframe[src*=youtube]").attr("width", "99%");
         mainContent.select("iframe").attr("width", "99%").removeAttr("height");
         mainContent.select("iframe").attr("height", "99%");

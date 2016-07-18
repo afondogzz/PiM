@@ -15,4 +15,5 @@
     <string name="action_delete">Удалить</string>
     <string name="localization">Локализация</string>
     <string name="language">Язык</string>
+    <string name="feedback">Оправить отзыв</string>
 </resources>
