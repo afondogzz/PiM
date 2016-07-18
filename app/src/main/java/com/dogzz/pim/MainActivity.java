@@ -143,12 +143,18 @@ public class MainActivity extends AppCompatActivity
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.saveArticleOffline(selectedArticleHeader);
             articlesListFragment.unselectAllItems();
+            if (isContextBarVisible) {
+                switchActionBarToggle(true);
+            }
             return true;
         } else if (id == R.id.action_delete) {
             Toast.makeText(this, selectedArticleHeader.getTitle() + " is deleting", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.removeArticle(selectedArticleHeader);
             articlesListFragment.unselectAllItems();
+            if (isContextBarVisible) {
+                switchActionBarToggle(true);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
