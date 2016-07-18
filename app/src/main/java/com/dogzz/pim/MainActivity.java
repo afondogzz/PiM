@@ -1,9 +1,12 @@
 package com.dogzz.pim;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -48,7 +51,6 @@ public class MainActivity extends AppCompatActivity
     private ArticleHeader selectedArticleHeader;
     private boolean isContextBarVisible = false;
     private ProgressBar progressBar;
-    private String previousTitle = "";
     private NavigationItem selectedNavigationItem = NavigationItem.ARTICLES;
     private NavigationItem previousNavigationItem = null;
 
@@ -57,6 +59,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setLanguageToSelected();
         setContentView(R.layout.activity_main);
+        ConnectivityManager connMgr =  (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            selectedNavigationItem = NavigationItem.SAVED;
+        }
         articlesListFragment = ArticlesListFragment.newInstance(selectedNavigationItem);
         fTrans = getSupportFragmentManager().beginTransaction();
         fTrans.add(R.id.frgmContainer, articlesListFragment);
@@ -176,7 +184,6 @@ public class MainActivity extends AppCompatActivity
             selectNavigationItem(NavigationItem.SAVED);
             getSupportActionBar().setTitle(R.string.saved);
         } else if (id == R.id.nav_settings) {
-            previousTitle = getSupportActionBar().getTitle().toString();
             selectNavigationItem(NavigationItem.SETTINGS);
         } else if (id == R.id.nav_about) {
 
@@ -199,7 +206,6 @@ public class MainActivity extends AppCompatActivity
                     articlesListFragment.setNavigationItem(navigationItem);
                     break;
                 case SETTINGS:
-                    getSupportActionBar().setTitle(R.string.settings);
                     switchActionBarToggle(false);
                     mainMenu.setGroupVisible(R.id.menu_group2, false);
                     getSupportFragmentManager().beginTransaction()
@@ -223,6 +229,7 @@ public class MainActivity extends AppCompatActivity
         isContextBarVisible = false;
         selectedArticleHeader = header;
         previousNavigationItem = selectedNavigationItem;
+        selectedNavigationItem = NavigationItem.CONTENT;
         switchActionBarToggle(false);
         if (selectedArticleHeader.isOffline()) {
             articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true);

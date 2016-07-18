@@ -13,7 +13,8 @@ public enum NavigationItem {
     SAVED (2, R.string.saved),
     SETTINGS (3, R.string.settings),
     FEEDBACK (4, R.string.feedback),
-    ABOUT (5, R.string.about);
+    ABOUT (5, R.string.about),
+    CONTENT (6, -1);
 
     int itemNo;
     int stringId;
