@@ -64,6 +64,7 @@ public abstract class HeadersList implements Serializable{
                     currentPageNumber = pageNumber;
                     mListener.onJobStarted(currentPageNumber == 1 ? ProgressPosition.CENTER : ProgressPosition.BOTTOM);
                     loadArticlesListFromSource();
+                    return;
                 } else {
                     downloadResult = "Error: The network is not available. You can read Offline articles.";
                     Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_LONG).show();
@@ -71,6 +72,14 @@ public abstract class HeadersList implements Serializable{
             } catch (SourceConnectException e) {
                 downloadResult = "Error: Unable to connect to the source. Check your internet settings.";
                 Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_LONG).show();
+            }
+            articlesHeaders.clear();
+            if (adapter == null) {
+                adapter = new MyRecyclerAdapter(mainActivity, articlesHeaders);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            } else {
+                adapter.notifyDataSetChanged();
             }
         }
     }
@@ -131,6 +140,16 @@ public abstract class HeadersList implements Serializable{
     public void unselectAllItems() {
         if (adapter != null)
             adapter.unselectAllItems();
+    }
+
+    public void notifyHeaderIsChanged(ArticleHeader header) {
+        if (adapter != null)
+            adapter.notifyItemChanged(articlesHeaders.indexOf(header));
+    }
+
+    public void notifyDataSetIsChanged() {
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
     }
 
     protected abstract List<ArticleHeader> extractArticlesHeaders(String result, SQLiteDatabase db);

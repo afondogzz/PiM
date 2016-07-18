@@ -149,7 +149,8 @@ public class ArticlesListFragment extends Fragment {
     }
 
     public void refreshContent() {
-        headersList.refreshContent();
+        if (headersList != null)
+            headersList.refreshContent();
     }
 
     public void onArticleClicked(ArticleHeader articleHeader) {
@@ -196,7 +197,17 @@ public class ArticlesListFragment extends Fragment {
     }
 
     public void unselectAllItems() {
-        headersList.unselectAllItems();
+        if (headersList != null)
+            headersList.unselectAllItems();
+    }
+
+    public void notifyHeaderIsChanged(ArticleHeader header) {
+        headersList.notifyHeaderIsChanged(header);
+    }
+
+    public void notifyDataSetIsChanged() {
+        if (headersList != null)
+            headersList.notifyDataSetIsChanged();
     }
 
     /**

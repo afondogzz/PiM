@@ -8,20 +8,21 @@ package com.dogzz.pim.uihandlers;
 import com.dogzz.pim.R;
 
 public enum NavigationItem {
-    ARTICLES (0, R.string.articles),
-    NEWS (1, R.string.news),
-    SAVED (2, R.string.saved),
-    SETTINGS (3, R.string.settings),
-    FEEDBACK (4, R.string.feedback),
-    ABOUT (5, R.string.about),
-    CONTENT (6, -1);
+    ARTICLES (0, R.string.articles, R.id.nav_articles),
+    NEWS (1, R.string.news, R.id.nav_news),
+    SAVED (2, R.string.saved, R.id.nav_saved),
+    SETTINGS (3, R.string.settings, R.id.nav_settings),
+    FEEDBACK (4, R.string.feedback, -1),
+    ABOUT (5, R.string.about, R.id.nav_about);
 
     int itemNo;
     int stringId;
+    int id;
 
-    NavigationItem(int itemNo, int stringId) {
+    NavigationItem(int itemNo, int stringId, int id) {
         this.itemNo = itemNo;
         this.stringId = stringId;
+        this.id = id;
     }
 
     public int getItemNo() {
@@ -30,6 +31,10 @@ public enum NavigationItem {
 
     public int getStringId() {
         return stringId;
+    }
+
+    public int getId() {
+        return id;
     }
 
      public static NavigationItem fromNumber(int itemNo) {

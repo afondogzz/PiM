@@ -39,7 +39,8 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         ArticlesListFragment.OnFragmentInteractionListener,
-        ArticleContentFragment.OnFragmentInteractionListener {
+        ArticleContentFragment.OnFragmentInteractionListener,
+        ArticleDownloader.DownloadListener {
 
     private static final String PAGES_DISPLAYED = "pagesDisplayed";
     private static final String LOG_TAG = "MainActivity";
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private NavigationItem selectedNavigationItem = NavigationItem.ARTICLES;
     private NavigationItem previousNavigationItem = null;
+    private NavigationView navigationView;
+    private boolean isNavDrawerDisplayed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,10 +99,9 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_articles);
-        getSupportActionBar().setTitle(R.string.articles);
+        refreshUI();
         // Navigation back icon listener
         toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
@@ -116,16 +118,16 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            selectedArticleHeader = null;
+
             if (!isContextBarVisible) {
                 super.onBackPressed();
+            } else {
+                selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
+                previousNavigationItem = null;
             }
-            articlesListFragment.unselectAllItems();
-            isContextBarVisible = false;
-            switchActionBarToggle(true);
-            selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
-            previousNavigationItem = null;
-            getSupportActionBar().setTitle(selectedNavigationItem.getStringId());
+
+
+            refreshUI();
 
         }
     }
@@ -150,19 +152,11 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, selectedArticleHeader.getTitle() + " is downloading", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.saveArticleOffline(selectedArticleHeader);
-            articlesListFragment.unselectAllItems();
-            if (isContextBarVisible) {
-                switchActionBarToggle(true);
-            }
             return true;
         } else if (id == R.id.action_delete) {
             Toast.makeText(this, selectedArticleHeader.getTitle() + " is deleting", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.removeArticle(selectedArticleHeader);
-            articlesListFragment.unselectAllItems();
-            if (isContextBarVisible) {
-                switchActionBarToggle(true);
-            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -228,8 +222,8 @@ public class MainActivity extends AppCompatActivity
     public void onArticleClicked(ArticleHeader header) {
         isContextBarVisible = false;
         selectedArticleHeader = header;
-        previousNavigationItem = selectedNavigationItem;
-        selectedNavigationItem = NavigationItem.CONTENT;
+        previousNavigationItem = null;
+//        selectedNavigationItem = NavigationItem.CONTENT;
         switchActionBarToggle(false);
         if (selectedArticleHeader.isOffline()) {
             articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true);
@@ -289,6 +283,7 @@ public class MainActivity extends AppCompatActivity
         toggle.setDrawerIndicatorEnabled(toNavigationDraw);
         getSupportActionBar().setDisplayHomeAsUpEnabled(!toNavigationDraw);
         toggle.syncState();
+        isNavDrawerDisplayed = toNavigationDraw;
     }
 
     private void setLanguageToSelected() {
@@ -300,5 +295,32 @@ public class MainActivity extends AppCompatActivity
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
+    }
+
+    @Override
+    public void onSavedArticleTaskFinished(ArticleHeader header) {
+
+//        if (selectedNavigationItem == NavigationItem.SAVED) {
+//            articlesListFragment.refreshContent();
+//        } else {
+//            articlesListFragment.unselectAllItems();
+//            articlesListFragment.notifyHeaderIsChanged(header);
+//        }
+        refreshUI();
+    }
+
+    private void refreshUI() {
+        getSupportActionBar().setTitle(selectedNavigationItem.getStringId());
+        selectedArticleHeader = null;
+        articlesListFragment.unselectAllItems();
+        articlesListFragment.notifyDataSetIsChanged();
+        navigationView.setCheckedItem(selectedNavigationItem.getId());
+        if (selectedNavigationItem == NavigationItem.SAVED) {
+            articlesListFragment.refreshContent();
+        }
+        if (!isContextBarVisible) {
+            switchActionBarToggle(true);
+            isContextBarVisible = false;
+        }
     }
 }

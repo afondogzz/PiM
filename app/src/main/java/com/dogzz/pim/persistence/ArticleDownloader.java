@@ -5,10 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.Toast;
-import com.dogzz.pim.R;
 import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.datahandlers.ArticleExtractor;
-import com.dogzz.pim.datahandlers.HeadersList;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import it.sephiroth.android.library.picasso.Picasso;
 import org.jsoup.Jsoup;
@@ -18,8 +16,6 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 
-import static android.content.Context.MODE_PRIVATE;
-import static android.provider.Telephony.Mms.Part.FILENAME;
 import static com.dogzz.pim.datahandlers.HeadersList.BASE_URL;
 
 /**
@@ -34,9 +30,13 @@ public class ArticleDownloader {
     private SQLiteDatabase db;
     private DBHelper mDBHelper;
     private ArticleHeader header;
+    private DownloadListener mListener;
 
     public ArticleDownloader(Activity mainActivity) {
         this.mainActivity = mainActivity;
+        if (mainActivity instanceof DownloadListener) {
+            mListener = (DownloadListener) mainActivity;
+        }
     }
 
     public void saveArticleOffline(ArticleHeader header) {
@@ -62,9 +62,9 @@ public class ArticleDownloader {
                 Log.e(LOG_TAG, "Can't delete file: " + e.getMessage());
             }
         }
-        //TODO implement removal of article file and associated pictures
         header.markArticleAsNotSaved(db);
         if (mDBHelper!=null) mDBHelper.close();
+        if (mListener != null) mListener.onSavedArticleTaskFinished(header);
     }
 
 
@@ -201,9 +201,11 @@ public class ArticleDownloader {
                 Toast.makeText(mainActivity, resultMessage,
                         Toast.LENGTH_LONG).show();
             }
-//            saveArticleContent(result);
+            if (mListener != null) mListener.onSavedArticleTaskFinished(header);
         }
     }
 
-
+    public interface DownloadListener {
+        void onSavedArticleTaskFinished(ArticleHeader header);
+    }
 }
