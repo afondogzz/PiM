@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     private Menu mainMenu;
     private ArticleHeader selectedArticleHeader;
     private boolean isContextBarVisible = false;
+    private boolean isContentVisible = false;
     private ProgressBar progressBar;
     private NavigationItem selectedNavigationItem = NavigationItem.ARTICLES;
     private NavigationItem previousNavigationItem = null;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PreferenceManager.setDefaultValues(this, R.xml.fragment_settings, false);
         setLanguageToSelected();
         setContentView(R.layout.activity_main);
         ConnectivityManager connMgr =  (ConnectivityManager)
@@ -121,12 +123,13 @@ public class MainActivity extends AppCompatActivity
 
             if (!isContextBarVisible) {
                 super.onBackPressed();
-            } else {
                 selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
-                previousNavigationItem = null;
+                isContentVisible = false;
             }
-
-
+//                selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
+//                previousNavigationItem = null;
+            switchActionBarToggle(true);
+            isContextBarVisible = false;
             refreshUI();
 
         }
@@ -167,16 +170,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         if (id == R.id.nav_articles) {
             selectNavigationItem(NavigationItem.ARTICLES);
-
         } else if (id == R.id.nav_news) {
             selectNavigationItem(NavigationItem.NEWS);
-            getSupportActionBar().setTitle(R.string.news);
+//            getSupportActionBar().setTitle(R.string.news);
         } else if (id == R.id.nav_saved) {
             selectNavigationItem(NavigationItem.SAVED);
-            getSupportActionBar().setTitle(R.string.saved);
+//            getSupportActionBar().setTitle(R.string.saved);
         } else if (id == R.id.nav_settings) {
             selectNavigationItem(NavigationItem.SETTINGS);
         } else if (id == R.id.nav_about) {
@@ -190,22 +191,25 @@ public class MainActivity extends AppCompatActivity
     private void selectNavigationItem(NavigationItem navigationItem) {
         if (selectedNavigationItem != navigationItem) {
             Toast.makeText(this, navigationItem.toString() + " is selected", Toast.LENGTH_SHORT).show();
-            previousNavigationItem = selectedNavigationItem;
-            selectedNavigationItem = navigationItem;
-            getSupportActionBar().setTitle(navigationItem.getStringId());
+//            getSupportActionBar().setTitle(navigationItem.getStringId());
             switch (navigationItem) {
                 case ARTICLES:
                 case NEWS:
                 case SAVED:
                     articlesListFragment.setNavigationItem(navigationItem);
+                    previousNavigationItem = null;
+                    selectedNavigationItem = navigationItem;
                     break;
                 case SETTINGS:
                     switchActionBarToggle(false);
                     mainMenu.setGroupVisible(R.id.menu_group2, false);
+                    previousNavigationItem = selectedNavigationItem;
+                    selectedNavigationItem = navigationItem;
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frgmContainer, new SettingsFragment()).addToBackStack(null).commit();
                     break;
             }
+            refreshUI();
         }
     }
 
@@ -221,6 +225,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onArticleClicked(ArticleHeader header) {
         isContextBarVisible = false;
+        isContentVisible = true;
         selectedArticleHeader = header;
         previousNavigationItem = null;
 //        selectedNavigationItem = NavigationItem.CONTENT;
@@ -232,7 +237,6 @@ public class MainActivity extends AppCompatActivity
         }
         onJobStarted(ProgressPosition.CENTER);
         fTrans = getSupportFragmentManager().beginTransaction();
-//        fTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fTrans.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         fTrans.replace(R.id.frgmContainer, articleContentFragment);
         fTrans.addToBackStack(null);
@@ -271,8 +275,6 @@ public class MainActivity extends AppCompatActivity
 
     private void switchActionBarToggle(boolean toNavigationDraw) {
         mainMenu.setGroupVisible(R.id.menu_group1, toNavigationDraw);
-//        mainMenu.setGroupVisible(R.id.menu_group2, !toNavigationDraw);
-//        mainMenu.setGroupVisible(R.id.menu_group3, !toNavigationDraw);
         if (selectedArticleHeader != null && selectedArticleHeader.isOffline()) {
             mainMenu.setGroupVisible(R.id.menu_group2, false);
             mainMenu.setGroupVisible(R.id.menu_group3, !toNavigationDraw);
@@ -299,26 +301,28 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSavedArticleTaskFinished(ArticleHeader header) {
-
-//        if (selectedNavigationItem == NavigationItem.SAVED) {
-//            articlesListFragment.refreshContent();
-//        } else {
-//            articlesListFragment.unselectAllItems();
-//            articlesListFragment.notifyHeaderIsChanged(header);
-//        }
         refreshUI();
     }
 
     private void refreshUI() {
         getSupportActionBar().setTitle(selectedNavigationItem.getStringId());
-        selectedArticleHeader = null;
+        if (selectedArticleHeader != null && isContentVisible) {
+            mainMenu.setGroupVisible(R.id.menu_group2, !selectedArticleHeader.isOffline());
+            mainMenu.setGroupVisible(R.id.menu_group3, selectedArticleHeader.isOffline());
+        }
+        if (selectedNavigationItem == NavigationItem.SAVED && selectedArticleHeader != null && !selectedArticleHeader.isOffline()) {
+            articlesListFragment.refreshContent();
+            if (isContentVisible) {
+                mainMenu.setGroupVisible(R.id.menu_group3, false);
+                mainMenu.setGroupVisible(R.id.menu_group2, false);
+            }
+        }
+        if (!isContentVisible) selectedArticleHeader = null;
         articlesListFragment.unselectAllItems();
         articlesListFragment.notifyDataSetIsChanged();
         navigationView.setCheckedItem(selectedNavigationItem.getId());
-        if (selectedNavigationItem == NavigationItem.SAVED) {
-            articlesListFragment.refreshContent();
-        }
-        if (!isContextBarVisible) {
+
+        if (isContextBarVisible) {
             switchActionBarToggle(true);
             isContextBarVisible = false;
         }

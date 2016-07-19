@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#A0A0A0</color>
-    <color name="colorPrimaryDark">#222</color>
-    <color name="colorAccent">#F7E026</color>
+    <color name="colorPrimary">#757575</color>
+    <color name="colorPrimaryDark">#212121</color>
+    <!--<color name="colorAccent">#ff6d00</color>-->
+    <color name="colorAccent">#FF6C24</color>
     <color name="textColor">#222</color>>
     <color name="textColorGrayed">#A0A0A0</color>>
     <color name="preference_accent">@color/colorAccent</color>

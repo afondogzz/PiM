@@ -23,7 +23,7 @@
         <item
                 android:id="@+id/action_delete"
                 android:title="@string/action_delete"
-                android:icon="@android:drawable/ic_menu_delete"
+                android:icon="@mipmap/ic_delete_white_48dp"
                 android:orderInCategory="100"
                 app:showAsAction="always"/>
     </group>

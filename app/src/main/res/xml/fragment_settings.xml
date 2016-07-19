@@ -25,7 +25,9 @@
                 android:entryValues="@array/lang_values"
                 android:key="lang"
                 android:summary="%s"
-                android:title="@string/language">
+                android:title="@string/language"
+                android:defaultValue="1"
+        >
         </ListPreference>
     </PreferenceCategory>
 

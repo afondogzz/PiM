@@ -2,14 +2,14 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:cardview="http://schemas.android.com/apk/res-auto"
                                     android:layout_width="match_parent"
-                                    android:layout_height="80dp"
+                                    android:layout_height="wrap_content"
                                     android:layout_margin="4dp"
                                     android:background="@drawable/side_nav_bar"
         >
 
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp">
+            android:layout_height="wrap_content">
 
         <ImageView
                 android:id="@+id/articleimage"
@@ -24,15 +24,30 @@
                 android:id="@+id/articletitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/articleimage"
-                android:maxLines="3"
+                android:layout_centerVertical="false"
+                android:layout_toEndOf="@+id/articleimage"
+                android:maxLines="4"
                 android:padding="8dp"
                 android:text="dafdafda"
                 android:textColor="@color/textColor"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textAppearance="@android:style/TextAppearance.Material.Body1"
                 style="@android:style/TextAppearance.Material.Body1"/>
+        <TextView
+                android:id="@+id/articlesubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/articletitle"
+                android:layout_toEndOf="@+id/articleimage"
+                android:maxLines="2"
+                android:padding="4dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="dafdafda"
+                android:textColor="@color/textColor"
+                android:textSize="12sp"
+                android:textAppearance="@android:style/TextAppearance.Material.Body2"
+                style="@android:style/TextAppearance.Material.Body2"/>
 
         <ImageView
                 android:id="@+id/issaved"

@@ -43,6 +43,7 @@ public class SavedHeadersList extends HeadersList {
 
     @Override
     protected void loadArticlesListFromSource() throws SourceConnectException {
+        Log.d("DDDD", this.toString());
         LoadArticlesListTask loadTask = new LoadArticlesListTask();
         String startFrom = String.valueOf((currentPageNumber - 1)*12);
         mDBHelper = new DBHelper(mainActivity, DBHelper.DB_NAME, null, DBHelper.DB_VERSION);

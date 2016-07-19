@@ -15,11 +15,12 @@
     <string name="saved">Saved</string>
     <string name="settings">Settings</string>
     <string name="about">About</string>
+    <string name="feedback">Send Feedback</string>
     <string name="run_fools">Run, you fools!</string>
 
     <string name="localization">Localization</string>
     <string name="language">Language</string>
-    <string name="feedback">Send Feedback</string>
+
 
     <string-array name="entries">
         <item>one</item>

@@ -39,44 +39,47 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
     @Override
     public void onBindViewHolder(CustomViewHolder customViewHolder, int position) {
         ArticleHeader header = articlesHeaders.get(position);
-        ViewGroup.LayoutParams lParams = customViewHolder.imageView.getLayoutParams();
-        //Download image using picasso library
         try {
             if (!header.getArticleImageUrl().isEmpty()) {
-                lParams.width = (int) mContext.getResources().getDimension(R.dimen.image_view_width);
-                customViewHolder.imageView.setLayoutParams(lParams);
-//                customViewHolder.imageView.setVisibility(View.VISIBLE);
+                customViewHolder.articleImage.setVisibility(View.VISIBLE);
                 Picasso.with(mContext).load(header.getArticleImageUrl())
                         .error(R.drawable.ic_menu_gallery)
                         .placeholder(R.drawable.ic_menu_gallery)
-                        .into(customViewHolder.imageView);
+                        .into(customViewHolder.articleImage);
             } else {
-                lParams.width = -2;
-                customViewHolder.imageView.setLayoutParams(lParams);
+                customViewHolder.articleImage.setVisibility(View.GONE);
             }
         } catch (Exception e) {
             Log.e("ImageLoad", e.getMessage());
         }
         //Setting text view title
-        customViewHolder.textView.setText(header.getTitle());
+        customViewHolder.articleTitle.setText(header.getTitle());
         if (header.isOffline()) {
             customViewHolder.isSavedImage.setVisibility(View.VISIBLE);
         } else {
-            customViewHolder.isSavedImage.setVisibility(View.INVISIBLE);
+            customViewHolder.isSavedImage.setVisibility(View.GONE);
         }
+
+        if (header.getType() == 1) {
+            customViewHolder.articleSubTitle.setVisibility(View.VISIBLE);
+            customViewHolder.articleSubTitle.setText(header.getSubTitle());
+        } else {
+            customViewHolder.articleSubTitle.setVisibility(View.GONE);
+            customViewHolder.articleSubTitle.setText("");
+        }
+
         if(selectedPosition == position){
-            customViewHolder.textView.setBackgroundColor(Color.BLACK);
-            customViewHolder.textView.setTextColor(Color.WHITE);
+            customViewHolder.articleTitle.setBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
+            customViewHolder.articleTitle.setTextColor(Color.WHITE);
+            customViewHolder.articleSubTitle.setTextColor(Color.WHITE);
         }else{
-            customViewHolder.textView.setBackgroundColor(Color.TRANSPARENT);
+            customViewHolder.articleTitle.setBackgroundColor(Color.TRANSPARENT);
             if (header.isRead()) {
-//            customViewHolder.parentView.getBackground().setColorFilter(0xA6A6A6A6, PorterDuff.Mode.SRC_IN);
-//            customViewHolder.parentView.setAlpha(0.3f);
-                customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
+                customViewHolder.articleTitle.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
+                customViewHolder.articleSubTitle.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
             } else {
-//            customViewHolder.parentView.setAlpha(0.8f);
-//            customViewHolder.parentView.getBackground().clearColorFilter();
-                customViewHolder.textView.setTextColor(mContext.getResources().getColor(R.color.textColor));
+                customViewHolder.articleTitle.setTextColor(mContext.getResources().getColor(R.color.textColor));
+                customViewHolder.articleSubTitle.setTextColor(mContext.getResources().getColor(R.color.textColor));
             }
         }
     }
@@ -99,15 +102,17 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
     }
 
     static class CustomViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        TextView textView;
+        ImageView articleImage;
         ImageView isSavedImage;
+        TextView articleTitle;
+        TextView articleSubTitle;
 
         CustomViewHolder(View view) {
             super(view);
-            this.imageView = (ImageView) view.findViewById(R.id.articleimage);
+            this.articleImage = (ImageView) view.findViewById(R.id.articleimage);
             this.isSavedImage = (ImageView) view.findViewById(R.id.issaved);
-            this.textView = (TextView) view.findViewById(R.id.articletitle);
+            this.articleTitle = (TextView) view.findViewById(R.id.articletitle);
+            this.articleSubTitle = (TextView) view.findViewById(R.id.articlesubtitle);
         }
     }
 }
