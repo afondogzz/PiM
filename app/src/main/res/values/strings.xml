@@ -22,6 +22,9 @@
     <string name="language">Language</string>
     <string name="history">History</string>
     <string name="clearhistory">Clear History</string>
+    <string name="display">Display</string>
+    <string name="video">Inline Video</string>
+    <string name="videodescription">If off, all inline videos will be replaced with links</string>
 
 
     <string-array name="entries">
@@ -54,5 +57,5 @@
     <string name="about_copyright_value" translatable="false">© PETRIMAZEPA.COM, MMMMMMMDXXII - MMMMMMMDXXIV.</string>
     <string name="about_licenses">Open Source Licenses</string>
     <string name="about_link">Visit Site</string>
-    <string name="about_link_value">http://petrimazepa.com</string>
+    <string name="about_link_value" translatable="false">http://petrimazepa.com</string>
 </resources>

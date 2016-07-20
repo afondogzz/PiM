@@ -1,8 +1,10 @@
 package com.dogzz.pim.persistence;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.dogzz.pim.asynctask.DownloadTask;
@@ -31,9 +33,11 @@ public class ArticleDownloader {
     private DBHelper mDBHelper;
     private ArticleHeader header;
     private DownloadListener mListener;
+    private boolean showVideo;
 
-    public ArticleDownloader(Activity mainActivity) {
+    public ArticleDownloader(Activity mainActivity, boolean showVideo) {
         this.mainActivity = mainActivity;
+        this.showVideo = showVideo;
         if (mainActivity instanceof DownloadListener) {
             mListener = (DownloadListener) mainActivity;
         }
@@ -140,7 +144,7 @@ public class ArticleDownloader {
         }
 
         private String extractArticle(String downloadResult) {
-            return ArticleExtractor.extractArticle(downloadResult);
+            return ArticleExtractor.extractArticle(downloadResult, showVideo);
         }
 
         private String makeImagesLocal(String pureArticle, String path) {

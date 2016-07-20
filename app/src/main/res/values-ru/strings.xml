@@ -22,6 +22,19 @@
         <item>Каждые 15 дней</item>
         <item>Каждый месяц</item>
     </string-array>
+    <string-array name="entry_values">
+        <item>7</item>
+        <item>15</item>
+        <item>30</item>
+    </string-array>
+    <string-array name="lang_entries">
+        <item>English</item>
+        <item>Русский</item>
+    </string-array>
+    <string-array name="lang_values">
+        <item>en</item>
+        <item>ru</item>
+    </string-array>
     <string name="clearhistory">Очищать историю</string>
     <string name="history">История</string>
     <string name="clearallhistory">Удалить всю историю</string>
@@ -31,5 +44,7 @@
     <string name="about_licenses">Лицензии Open Source</string>
     <string name="about_link">Посетить сайт</string>
     <string name="about_version">Версия приложения</string>
-    <string name="about_link_value" translatable="false">http://petrimazepa.com</string>
+    <string name="display">Отображение</string>
+    <string name="video">Встроенное видео</string>
+    <string name="videodescription">Если выключено, все видео в статьях будет заменено на ссылки</string>
 </resources>

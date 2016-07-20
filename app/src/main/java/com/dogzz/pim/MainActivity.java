@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationItem previousNavigationItem = null;
     private NavigationView navigationView;
     private boolean isNavDrawerDisplayed;
+    private boolean showVideo;
     private Locale mCurrentLocale;
 
     @Override
@@ -57,6 +58,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         PreferenceManager.setDefaultValues(this, R.xml.fragment_settings, false);
         setLanguageToSelected();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        showVideo = preferences.getBoolean("displayvideo", true);
         setContentView(R.layout.activity_main);
         ConnectivityManager connMgr =  (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -135,11 +138,11 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_download) {
             onJobStarted(ProgressPosition.CENTER);
-            ArticleDownloader downloader = new ArticleDownloader(this);
+            ArticleDownloader downloader = new ArticleDownloader(this, showVideo);
             downloader.saveArticleOffline(selectedArticleHeader);
             return true;
         } else if (id == R.id.action_delete) {
-            ArticleDownloader downloader = new ArticleDownloader(this);
+            ArticleDownloader downloader = new ArticleDownloader(this, showVideo);
             downloader.removeArticle(selectedArticleHeader);
             return true;
         }
@@ -226,9 +229,9 @@ public class MainActivity extends AppCompatActivity
 //        selectedNavigationItem = NavigationItem.CONTENT;
         switchActionBarToggle(false);
         if (selectedArticleHeader.isOffline()) {
-            articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true);
+            articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true, showVideo);
         } else {
-            articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl(), false);
+            articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl(), false, showVideo);
         }
         onJobStarted(ProgressPosition.CENTER);
         fTrans = getSupportFragmentManager().beginTransaction();

@@ -1,14 +1,19 @@
 package com.dogzz.pim.screens;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.*;
 
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.dogzz.pim.R;
@@ -22,6 +27,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +41,7 @@ public class ArticleContentFragment extends Fragment {
     private static final String ARTICLE_URL = "articleUrl";
     private static final String IS_SAVED = "isSaved";
     private static final String LOG_TAG = "ArticleContentFragment";
+    private static final String SHOW_VIDEO = "showVideo";
 
     private String articleUrl;
     private boolean isArticleSaved;
@@ -42,6 +49,7 @@ public class ArticleContentFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private WebView webView;
     public String downloadResult = "";
+    private boolean showVideo = false;
 
     public ArticleContentFragment() {
         // Required empty public constructor
@@ -54,11 +62,12 @@ public class ArticleContentFragment extends Fragment {
      * @param url Parameter 1.
      * @return A new instance of fragment ArticleContentFragment.
      */
-    public static ArticleContentFragment newInstance(String url, boolean isSaved) {
+    public static ArticleContentFragment newInstance(String url, boolean isSaved, boolean showVideo) {
         ArticleContentFragment fragment = new ArticleContentFragment();
         Bundle args = new Bundle();
         args.putString(ARTICLE_URL, url);
         args.putBoolean(IS_SAVED, isSaved);
+        args.putBoolean(SHOW_VIDEO, showVideo);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,6 +78,7 @@ public class ArticleContentFragment extends Fragment {
         if (getArguments() != null) {
             articleUrl = getArguments().getString(ARTICLE_URL);
             isArticleSaved = getArguments().getBoolean(IS_SAVED);
+            showVideo = getArguments().getBoolean(SHOW_VIDEO);
         }
     }
 
@@ -77,6 +87,11 @@ public class ArticleContentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_article_content, container, false);
         webView = (WebView) view.findViewById(R.id.webView);
+        if (showVideo) {
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.setWebChromeClient(new WebChromeClient() {
+            });
+        }
         if (!isArticleSaved) {
             ConnectivityManager connMgr = (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -149,9 +164,10 @@ public class ArticleContentFragment extends Fragment {
                 webView.loadDataWithBaseURL(HeadersList.BASE_URL, pureArticle, "text/html", null, "");
                 if (mListener != null) mListener.onJobFinished();
             } catch (Exception e) {
+                Log.e(LOG_TAG, "Something went wrong with loaded data. ".concat(Arrays.asList(e.getStackTrace()).toString()));
+                Log.e(LOG_TAG, "Something went wrong with loaded data. ".concat(e.getMessage()));
                 Toast.makeText(getActivity(), "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
-                Log.e(LOG_TAG, "Something went wrong with loaded data. ".concat(e.getMessage()));
             }
         } else {
             Toast.makeText(getActivity(), downloadResult, Toast.LENGTH_SHORT).show();
@@ -159,7 +175,7 @@ public class ArticleContentFragment extends Fragment {
     }
 
     private String extractArticle(String result) {
-        return ArticleExtractor.extractArticle(result);
+        return ArticleExtractor.extractArticle(result, showVideo);
     }
 
     public class DownloadArticleTask extends DownloadTask {
