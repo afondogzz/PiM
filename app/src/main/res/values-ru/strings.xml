@@ -16,4 +16,20 @@
     <string name="localization">Локализация</string>
     <string name="language">Язык</string>
     <string name="feedback">Оправить отзыв</string>
+
+    <string-array name="entries">
+        <item>Каждую неделю</item>
+        <item>Каждые 15 дней</item>
+        <item>Каждый месяц</item>
+    </string-array>
+    <string name="clearhistory">Очищать историю</string>
+    <string name="history">История</string>
+    <string name="clearallhistory">Удалить всю историю</string>
+    <string name="clearhistoryconfirm">Вы действительно хотите удалить всю историю?</string>
+    <string name="ErrorNoNetwork">Сеть недоступна. Вы можете читать Сохраненные статьи</string>
+    <string name="about_copyright">Авторские права</string>
+    <string name="about_licenses">Лицензии Open Source</string>
+    <string name="about_link">Посетить сайт</string>
+    <string name="about_version">Версия приложения</string>
+    <string name="about_link_value" translatable="false">http://petrimazepa.com</string>
 </resources>

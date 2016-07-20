@@ -28,6 +28,7 @@ import static com.dogzz.pim.persistence.DBHelper.*;
 
 public class SavedHeadersList extends HeadersList {
 
+    private static final String LOG_TAG = "SavedHeadersList";
     private SQLiteDatabase db;
     private DBHelper mDBHelper;
     private Cursor cursor;
@@ -84,6 +85,7 @@ public class SavedHeadersList extends HeadersList {
         } catch (SourceConnectException e) {
             downloadResult = "Error: Unable to connect to the source. Check your internet settings.";
             Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_SHORT).show();
+            Log.e(LOG_TAG, downloadResult);
         }
     }
 
@@ -97,6 +99,7 @@ public class SavedHeadersList extends HeadersList {
                 result = loadRecordsFromDB(startFrom[0]);
             } catch (Exception e) {
                 downloadResult = "Error: Unable to retrieve source data. The source is inaccessible.";
+                Log.e(LOG_TAG, downloadResult);
                 result = 0;
             }
             return result;

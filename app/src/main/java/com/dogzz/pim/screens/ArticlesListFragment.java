@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.Toast;
 import com.dogzz.pim.R;
 import com.dogzz.pim.datahandlers.ArticlesHeadersList;
 import com.dogzz.pim.datahandlers.HeadersList;
@@ -84,9 +83,6 @@ public class ArticlesListFragment extends Fragment {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             headersList = getHeadersListInstance(connMgr);
             int pagesDisplayed = 1;
-//        if (savedInstanceState != null) {
-//            pagesDisplayed = savedInstanceState.getInt(PAGES_DISPLAYED);
-//        }
             headersList.loadArticlesHeaders(pagesDisplayed, true);
 
             mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
@@ -95,7 +91,6 @@ public class ArticlesListFragment extends Fragment {
                     ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
                     headersList.markHeaderAsRead(position);
                     onArticleClicked(articleHeader);
-//                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is selected!", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -103,26 +98,18 @@ public class ArticlesListFragment extends Fragment {
                     ArticleHeader articleHeader = headersList.getArticlesHeaders().get(position);
                     headersList.markHeaderAsSelected(position);
                     onArticleLongClicked(articleHeader);
-//                    Toast.makeText(getActivity(), articleHeader.getTitle() + " is long pressed!", Toast.LENGTH_SHORT).show();
                 }
             }));
-
-//        final LinearLayoutManager mLayoutManager;
-//        mLayoutManager = new LinearLayoutManager(this);
-//        mRecyclerView.setLayoutManager(mLayoutManager);
 
              mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
                     if (!recyclerView.canScrollVertically(-1)) {
-//                    refreshContent();
                     } else if (!recyclerView.canScrollVertically(1)) {
                         loadNextPageIntoView();
-                    } else if (dy < 0) {
-//                    onScrolledUp();
-                    } else if (dy > 0) {
-//                    onScrolledDown();
+                    } else if (dy < 0) {//                    onScrolledUp();
+                    } else if (dy > 0) {//                    onScrolledDown();
                     }
                 }
             });

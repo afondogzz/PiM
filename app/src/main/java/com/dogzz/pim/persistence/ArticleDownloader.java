@@ -64,7 +64,7 @@ public class ArticleDownloader {
         }
         header.markArticleAsNotSaved(db);
         if (mDBHelper!=null) mDBHelper.close();
-        if (mListener != null) mListener.onSavedArticleTaskFinished(header);
+        if (mListener != null) mListener.onSavedArticleTaskFinished();
     }
 
 
@@ -80,6 +80,7 @@ public class ArticleDownloader {
 
             } catch (IOException e) {
                 downloadResult = "Error: Unable to retrieve source data. The source is inaccessible.";
+                Log.e(LOG_TAG, downloadResult + e.getMessage());
                 result = 0;
             }
             return result;
@@ -99,7 +100,7 @@ public class ArticleDownloader {
                     return 1;
                 } catch (Exception e) {
                     resultMessage = "Something went wrong with loaded data. ".concat(e.getMessage());
-                    Log.d(LOG_TAG, resultMessage);
+                    Log.e(LOG_TAG, resultMessage);
                     return 0;
                 }
             } else {
@@ -154,8 +155,6 @@ public class ArticleDownloader {
             return resultHtml = doc.html();
         }
 
-
-
         private String downloadImage(String imageUrl, String path) {
             String url = imageUrl;
             String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1, imageUrl.length());
@@ -172,14 +171,14 @@ public class ArticleDownloader {
                 Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(format);
                 bmp.compress(compressFormat, 90, out);
             } catch (Exception e) {
-                Log.d(LOG_TAG, "Image downloading failed. " + e.getMessage());
+                Log.e(LOG_TAG, "Image downloading failed. " + e.getMessage());
             } finally {
                 try {
                     if (out != null) {
                         out.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(LOG_TAG, "Image downloading failed. " + e.getMessage());
                 }
             }
             return filename;
@@ -194,18 +193,15 @@ public class ArticleDownloader {
         @Override
         protected void onPostExecute(Integer result) {
             downloadResult = resultMessage;
-            if (result == 1) {
-                Toast.makeText(mainActivity, "Download finished",
-                        Toast.LENGTH_SHORT).show();
-            } else {
+            if (result != 1) {
                 Toast.makeText(mainActivity, resultMessage,
                         Toast.LENGTH_LONG).show();
             }
-            if (mListener != null) mListener.onSavedArticleTaskFinished(header);
+            if (mListener != null) mListener.onSavedArticleTaskFinished();
         }
     }
 
     public interface DownloadListener {
-        void onSavedArticleTaskFinished(ArticleHeader header);
+        void onSavedArticleTaskFinished();
     }
 }

@@ -3,22 +3,6 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-            android:title="asasas">
-
-
-    <CheckBoxPreference
-            android:key="chb1"
-            android:summary="cheboxeg"
-            android:title="cheboxeg title">
-    </CheckBoxPreference>
-    <EditTextPreference
-            android:key="address1"
-            android:summary="%s"
-            android:title="edit text title">
-    </EditTextPreference>
-    </PreferenceCategory>
-
-    <PreferenceCategory
             android:title="@string/localization">
         <ListPreference
                 android:entries="@array/lang_entries"
@@ -26,17 +10,24 @@
                 android:key="lang"
                 android:summary="%s"
                 android:title="@string/language"
-                android:defaultValue="1"
+                android:defaultValue="ru"
         >
         </ListPreference>
     </PreferenceCategory>
 
-    <ListPreference
-            android:entries="@array/entries"
-            android:entryValues="@array/entry_values"
-            android:key="list1"
-            android:summary="%s"
-            android:title="listeg title">
-    </ListPreference>
+    <PreferenceCategory
+            android:title="@string/history">
+        <ListPreference
+                android:entries="@array/entries"
+                android:entryValues="@array/entry_values"
+                android:key="clearhistory"
+                android:summary="%s"
+                android:title="@string/clearhistory"
+                android:defaultValue="15">
+        </ListPreference>
+        <Preference android:title="@string/clearallhistory"
+                    android:key="clearall"
+        />
+    </PreferenceCategory>
 
 </PreferenceScreen>

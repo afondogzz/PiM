@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PetrIMazepa</string>
+    <string name="app_name">Petr I Mazepa</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -20,17 +20,19 @@
 
     <string name="localization">Localization</string>
     <string name="language">Language</string>
+    <string name="history">History</string>
+    <string name="clearhistory">Clear History</string>
 
 
     <string-array name="entries">
-        <item>one</item>
-        <item>two</item>
-        <item>three</item>
+        <item>Every week</item>
+        <item>Every 15 days</item>
+        <item>Every month</item>
     </string-array>
     <string-array name="entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+        <item>7</item>
+        <item>15</item>
+        <item>30</item>
     </string-array>
 
     <string-array name="lang_entries">
@@ -41,4 +43,16 @@
         <item>en</item>
         <item>ru</item>
     </string-array>
+    <string name="clearallhistory">Clear All Hisory</string>
+    <string name="clearhistoryconfirm">Clear all history now?</string>
+    <string name="ErrorNoNetwork">The network is not available. You can read Saved articles.</string>
+
+
+    <string name="about_version">Application Version</string>
+    <string name="about_version_value" translatable="false">0.94</string>
+    <string name="about_copyright">Copyrights</string>
+    <string name="about_copyright_value" translatable="false">© PETRIMAZEPA.COM, MMMMMMMDXXII - MMMMMMMDXXIV.</string>
+    <string name="about_licenses">Open Source Licenses</string>
+    <string name="about_link">Visit Site</string>
+    <string name="about_link_value">http://petrimazepa.com</string>
 </resources>

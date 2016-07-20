@@ -1,13 +1,11 @@
 package com.dogzz.pim;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,14 +17,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
-
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
 import com.dogzz.pim.persistence.ArticleDownloader;
-import com.dogzz.pim.persistence.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
+import com.dogzz.pim.persistence.HistoryManager;
+import com.dogzz.pim.screens.AboutFragment;
 import com.dogzz.pim.screens.ArticleContentFragment;
 import com.dogzz.pim.screens.ArticlesListFragment;
 import com.dogzz.pim.screens.SettingsFragment;
@@ -42,8 +37,6 @@ public class MainActivity extends AppCompatActivity
         ArticleContentFragment.OnFragmentInteractionListener,
         ArticleDownloader.DownloadListener {
 
-    private static final String PAGES_DISPLAYED = "pagesDisplayed";
-    private static final String LOG_TAG = "MainActivity";
     private ArticlesListFragment articlesListFragment;
     private ArticleContentFragment articleContentFragment;
     private FragmentTransaction fTrans;
@@ -57,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationItem previousNavigationItem = null;
     private NavigationView navigationView;
     private boolean isNavDrawerDisplayed;
+    private Locale mCurrentLocale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,31 +64,17 @@ public class MainActivity extends AppCompatActivity
         if (networkInfo == null || !networkInfo.isConnected()) {
             selectedNavigationItem = NavigationItem.SAVED;
         }
+        clearOldArticles();
         articlesListFragment = ArticlesListFragment.newInstance(selectedNavigationItem);
-        fTrans = getSupportFragmentManager().beginTransaction();
-        fTrans.add(R.id.frgmContainer, articlesListFragment);
-        fTrans.commit();
-//        }
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.frgmContainer, articlesListFragment)
+                .commit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
-//        progressBar.setVisibility(View.VISIBLE);
-
-
-//        ConnectivityManager connMgr =  (ConnectivityManager)
-//                getSystemService(Context.CONNECTIVITY_SERVICE);
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-////                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-////                        .setAction("Action", null).show();
-////                webView.loadUrl(BASE_URL);
-//            }
-//        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -111,7 +91,13 @@ public class MainActivity extends AppCompatActivity
                 onBackPressed();
             }
         });
+    }
 
+    private void clearOldArticles() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String interval = preferences.getString("clearhistory", "15");
+        HistoryManager history = new HistoryManager(this);
+        history.clearOld(interval);
     }
 
     @Override
@@ -120,18 +106,14 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-
             if (!isContextBarVisible) {
                 super.onBackPressed();
                 selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
                 isContentVisible = false;
             }
-//                selectedNavigationItem = previousNavigationItem != null ? previousNavigationItem : selectedNavigationItem;
-//                previousNavigationItem = null;
             switchActionBarToggle(true);
             isContextBarVisible = false;
             refreshUI();
-
         }
     }
 
@@ -152,12 +134,11 @@ public class MainActivity extends AppCompatActivity
             articlesListFragment.refreshContent();
             return true;
         } else if (id == R.id.action_download) {
-            Toast.makeText(this, selectedArticleHeader.getTitle() + " is downloading", Toast.LENGTH_SHORT).show();
+            onJobStarted(ProgressPosition.CENTER);
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.saveArticleOffline(selectedArticleHeader);
             return true;
         } else if (id == R.id.action_delete) {
-            Toast.makeText(this, selectedArticleHeader.getTitle() + " is deleting", Toast.LENGTH_SHORT).show();
             ArticleDownloader downloader = new ArticleDownloader(this);
             downloader.removeArticle(selectedArticleHeader);
             return true;
@@ -180,8 +161,10 @@ public class MainActivity extends AppCompatActivity
 //            getSupportActionBar().setTitle(R.string.saved);
         } else if (id == R.id.nav_settings) {
             selectNavigationItem(NavigationItem.SETTINGS);
+        } else if (id == R.id.nav_feedback) {
+            sendFeedback();
         } else if (id == R.id.nav_about) {
-
+            selectNavigationItem(NavigationItem.ABOUT);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -190,8 +173,6 @@ public class MainActivity extends AppCompatActivity
 
     private void selectNavigationItem(NavigationItem navigationItem) {
         if (selectedNavigationItem != navigationItem) {
-            Toast.makeText(this, navigationItem.toString() + " is selected", Toast.LENGTH_SHORT).show();
-//            getSupportActionBar().setTitle(navigationItem.getStringId());
             switch (navigationItem) {
                 case ARTICLES:
                 case NEWS:
@@ -208,17 +189,31 @@ public class MainActivity extends AppCompatActivity
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frgmContainer, new SettingsFragment()).addToBackStack(null).commit();
                     break;
+                case FEEDBACK:
+                    break;
+                case ABOUT:
+                    switchActionBarToggle(false);
+                    mainMenu.setGroupVisible(R.id.menu_group2, false);
+                    previousNavigationItem = selectedNavigationItem;
+                    selectedNavigationItem = navigationItem;
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frgmContainer, new AboutFragment()).addToBackStack(null).commit();
+                    break;
             }
             refreshUI();
         }
     }
 
+    private void sendFeedback() {
+        Intent Email = new Intent(Intent.ACTION_SEND);
+        Email.setType("text/email");
+        Email.putExtra(Intent.EXTRA_EMAIL, new String[] { "vsanmed@gmail.com" });
+        Email.putExtra(Intent.EXTRA_SUBJECT, "PiM Feedback: ");
+        startActivity(Intent.createChooser(Email, "Send Feedback:"));
+    }
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the user's current game state
-//        savedInstanceState.putInt(PAGES_DISPLAYED, HeadersList.getCurrentPageNumber());
-
-        // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -288,19 +283,33 @@ public class MainActivity extends AppCompatActivity
         isNavDrawerDisplayed = toNavigationDraw;
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Locale newLocale = newConfig.locale;
+        if (!newLocale.equals(mCurrentLocale)) {
+            setLanguageToSelected();
+        }
+    }
+
     private void setLanguageToSelected() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String lang = preferences.getString("lang", "en");
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
+        mCurrentLocale = getLocale();
+        Locale.setDefault(mCurrentLocale);
         Configuration config = new Configuration();
-        config.locale = locale;
+        config.setLocale(mCurrentLocale);
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
     }
 
+    private  Locale getLocale(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String lang = preferences.getString("lang", "ru");
+        return new Locale(lang);
+    }
+
     @Override
-    public void onSavedArticleTaskFinished(ArticleHeader header) {
+    public void onSavedArticleTaskFinished() {
+        onJobFinished();
         refreshUI();
     }
 
@@ -327,4 +336,6 @@ public class MainActivity extends AppCompatActivity
             isContextBarVisible = false;
         }
     }
+
+
 }

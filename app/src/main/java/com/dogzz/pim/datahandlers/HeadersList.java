@@ -5,7 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
+import com.dogzz.pim.R;
 import com.dogzz.pim.asynctask.DownloadTask;
 import com.dogzz.pim.persistence.DBHelper;
 import com.dogzz.pim.dataobject.ArticleHeader;
@@ -25,6 +27,7 @@ import java.util.List;
  */
 public abstract class HeadersList implements Serializable{
 
+    private static final String LOG_TAG = "HeadersList";
     protected String downloadResult = "";
     protected List<ArticleHeader> articlesHeaders = new ArrayList<>();
     protected int currentPageNumber = 0;
@@ -66,12 +69,13 @@ public abstract class HeadersList implements Serializable{
                     loadArticlesListFromSource();
                     return;
                 } else {
-                    downloadResult = "Error: The network is not available. You can read Offline articles.";
+                    downloadResult = mainActivity.getResources().getString(R.string.ErrorNoNetwork);
                     Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_LONG).show();
                 }
             } catch (SourceConnectException e) {
                 downloadResult = "Error: Unable to connect to the source. Check your internet settings.";
                 Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_LONG).show();
+                Log.e(LOG_TAG, downloadResult);
             }
             articlesHeaders.clear();
             if (adapter == null) {
@@ -118,6 +122,7 @@ public abstract class HeadersList implements Serializable{
             } catch (Exception e) {
                 Toast.makeText(mainActivity, "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
+                Log.e(LOG_TAG, "Something went wrong with loaded data. ".concat(e.getMessage()));
             }
         } else {
             Toast.makeText(mainActivity, downloadResult, Toast.LENGTH_SHORT).show();
@@ -176,6 +181,7 @@ public abstract class HeadersList implements Serializable{
                 result = downloadUrl(urls[0]);
             } catch (IOException e) {
                 downloadResult = "Error: Unable to retrieve source data. The source is inaccessible.";
+                Log.e(LOG_TAG, downloadResult);
                 result = 0;
             }
             return result;

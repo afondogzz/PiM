@@ -34,6 +34,7 @@ import java.io.*;
 public class ArticleContentFragment extends Fragment {
     private static final String ARTICLE_URL = "articleUrl";
     private static final String IS_SAVED = "isSaved";
+    private static final String LOG_TAG = "ArticleContentFragment";
 
     private String articleUrl;
     private boolean isArticleSaved;
@@ -84,7 +85,7 @@ public class ArticleContentFragment extends Fragment {
             if (networkInfo != null && networkInfo.isConnected()) {
                 downloadTask.execute(articleUrl);
             } else {
-                downloadResult = "Error: The network is not available. You can read Offline articles.";
+                downloadResult = getResources().getString(R.string.ErrorNoNetwork);
                 Toast.makeText(getActivity(), downloadResult, Toast.LENGTH_SHORT).show();
             }
         } else {
@@ -124,6 +125,7 @@ public class ArticleContentFragment extends Fragment {
         } catch (Exception e) {
             Toast.makeText(getActivity(), "Something went wrong with read data. ".concat(e.getMessage()),
                     Toast.LENGTH_SHORT).show();
+            Log.e(LOG_TAG, "Something went wrong with read data. ".concat(e.getMessage()));
         }
     }
 
@@ -149,6 +151,7 @@ public class ArticleContentFragment extends Fragment {
             } catch (Exception e) {
                 Toast.makeText(getActivity(), "Something went wrong with loaded data. ".concat(e.getMessage()),
                         Toast.LENGTH_SHORT).show();
+                Log.e(LOG_TAG, "Something went wrong with loaded data. ".concat(e.getMessage()));
             }
         } else {
             Toast.makeText(getActivity(), downloadResult, Toast.LENGTH_SHORT).show();
@@ -169,6 +172,7 @@ public class ArticleContentFragment extends Fragment {
                 result = downloadUrl(urls[0]);
             } catch (IOException e) {
                 downloadResult = "Error: Unable to retrieve source data. The source is inaccessible.";
+                Log.e(LOG_TAG, downloadResult);
                 result = 0;
             }
             return result;
