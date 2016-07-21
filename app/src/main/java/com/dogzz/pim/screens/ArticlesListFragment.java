@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -80,7 +81,8 @@ public class ArticlesListFragment extends Fragment {
             connMgr = (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+//            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
             headersList = getHeadersListInstance(connMgr);
             int pagesDisplayed = 1;
             headersList.loadArticlesHeaders(pagesDisplayed, true);

@@ -1,12 +1,16 @@
 package com.dogzz.pim.screens;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 
+import android.util.Log;
 import com.dogzz.pim.R;
 import com.dogzz.pim.persistence.HistoryManager;
 
@@ -15,6 +19,8 @@ import com.dogzz.pim.persistence.HistoryManager;
  *
  */
 public class SettingsFragment extends PreferenceFragmentCompat {
+
+    private String version;
 
     public SettingsFragment() {
         // Required empty public constructor

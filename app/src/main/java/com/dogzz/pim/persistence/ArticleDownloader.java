@@ -34,10 +34,12 @@ public class ArticleDownloader {
     private ArticleHeader header;
     private DownloadListener mListener;
     private boolean showVideo;
+    private int videoWidth;
 
-    public ArticleDownloader(Activity mainActivity, boolean showVideo) {
+    public ArticleDownloader(Activity mainActivity, boolean showVideo, int videoWidth) {
         this.mainActivity = mainActivity;
         this.showVideo = showVideo;
+        this.videoWidth = videoWidth;
         if (mainActivity instanceof DownloadListener) {
             mListener = (DownloadListener) mainActivity;
         }
@@ -144,7 +146,7 @@ public class ArticleDownloader {
         }
 
         private String extractArticle(String downloadResult) {
-            return ArticleExtractor.extractArticle(downloadResult, showVideo);
+            return ArticleExtractor.extractArticle(downloadResult, showVideo, videoWidth);
         }
 
         private String makeImagesLocal(String pureArticle, String path) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -35,7 +36,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         ArticlesListFragment.OnFragmentInteractionListener,
         ArticleContentFragment.OnFragmentInteractionListener,
-        ArticleDownloader.DownloadListener {
+        ArticleDownloader.DownloadListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private ArticlesListFragment articlesListFragment;
     private ArticleContentFragment articleContentFragment;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private boolean isNavDrawerDisplayed;
     private boolean showVideo;
+    private int videoWidth;
     private Locale mCurrentLocale;
 
     @Override
@@ -59,7 +62,8 @@ public class MainActivity extends AppCompatActivity
         PreferenceManager.setDefaultValues(this, R.xml.fragment_settings, false);
         setLanguageToSelected();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        showVideo = preferences.getBoolean("displayvideo", true);
+        preferences.registerOnSharedPreferenceChangeListener(this);
+        populateVideoParameters(preferences);
         setContentView(R.layout.activity_main);
         ConnectivityManager connMgr =  (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -138,11 +142,11 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_download) {
             onJobStarted(ProgressPosition.CENTER);
-            ArticleDownloader downloader = new ArticleDownloader(this, showVideo);
+            ArticleDownloader downloader = new ArticleDownloader(this, showVideo, videoWidth);
             downloader.saveArticleOffline(selectedArticleHeader);
             return true;
         } else if (id == R.id.action_delete) {
-            ArticleDownloader downloader = new ArticleDownloader(this, showVideo);
+            ArticleDownloader downloader = new ArticleDownloader(this, showVideo, videoWidth);
             downloader.removeArticle(selectedArticleHeader);
             return true;
         }
@@ -227,18 +231,19 @@ public class MainActivity extends AppCompatActivity
         selectedArticleHeader = header;
         previousNavigationItem = null;
 //        selectedNavigationItem = NavigationItem.CONTENT;
-        switchActionBarToggle(false);
+
         if (selectedArticleHeader.isOffline()) {
-            articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true, showVideo);
+            articleContentFragment = ArticleContentFragment.newInstance(header.getFileName(), true, showVideo, videoWidth);
         } else {
-            articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl(), false, showVideo);
+            articleContentFragment = ArticleContentFragment.newInstance(header.getArticleUrl(), false, showVideo, videoWidth);
         }
-        onJobStarted(ProgressPosition.CENTER);
         fTrans = getSupportFragmentManager().beginTransaction();
-        fTrans.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+//        fTrans.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
         fTrans.replace(R.id.frgmContainer, articleContentFragment);
         fTrans.addToBackStack(null);
         fTrans.commit();
+        switchActionBarToggle(false);
+        onJobStarted(ProgressPosition.CENTER);
     }
 
     @Override
@@ -295,6 +300,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+
     private void setLanguageToSelected() {
         mCurrentLocale = getLocale();
         Locale.setDefault(mCurrentLocale);
@@ -340,5 +347,16 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        populateVideoParameters(sharedPreferences);
+    }
 
+    private void populateVideoParameters(SharedPreferences preferences) {
+        showVideo = preferences.getBoolean("displayvideo", true);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        videoWidth = size.x;
+    }
 }

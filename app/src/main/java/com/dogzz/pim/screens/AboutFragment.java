@@ -1,5 +1,6 @@
 package com.dogzz.pim.screens;
 
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 
 import android.widget.ScrollView;
 import android.widget.TextView;
+import com.dogzz.pim.BuildConfig;
 import com.dogzz.pim.R;
 
 /**
@@ -41,6 +43,8 @@ public class AboutFragment extends Fragment {
                 }
             }
         });
+        TextView textVersionValue = (TextView) view.findViewById(R.id.textVersionValue);
+        textVersionValue.setText(BuildConfig.VERSION_NAME);
         return view;
     }
 }

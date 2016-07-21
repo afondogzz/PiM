@@ -43,6 +43,7 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
             if (!header.getArticleImageUrl().isEmpty()) {
                 customViewHolder.articleImage.setVisibility(View.VISIBLE);
                 Picasso.with(mContext).load(header.getArticleImageUrl())
+                        .resizeDimen(R.dimen.image_view_width,R.dimen.image_view_height)
                         .error(R.drawable.ic_menu_gallery)
                         .placeholder(R.drawable.ic_menu_gallery)
                         .into(customViewHolder.articleImage);

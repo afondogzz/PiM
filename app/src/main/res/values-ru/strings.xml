@@ -15,7 +15,7 @@
     <string name="action_delete">Удалить</string>
     <string name="localization">Локализация</string>
     <string name="language">Язык</string>
-    <string name="feedback">Оправить отзыв</string>
+    <string name="feedback">Отправить отзыв</string>
 
     <string-array name="entries">
         <item>Каждую неделю</item>

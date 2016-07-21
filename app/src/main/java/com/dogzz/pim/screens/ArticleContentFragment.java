@@ -42,6 +42,7 @@ public class ArticleContentFragment extends Fragment {
     private static final String IS_SAVED = "isSaved";
     private static final String LOG_TAG = "ArticleContentFragment";
     private static final String SHOW_VIDEO = "showVideo";
+    private static final String VIDEO_WIDTH = "videoWidth";
 
     private String articleUrl;
     private boolean isArticleSaved;
@@ -50,6 +51,7 @@ public class ArticleContentFragment extends Fragment {
     private WebView webView;
     public String downloadResult = "";
     private boolean showVideo = false;
+    private int videoWidth;
 
     public ArticleContentFragment() {
         // Required empty public constructor
@@ -62,12 +64,13 @@ public class ArticleContentFragment extends Fragment {
      * @param url Parameter 1.
      * @return A new instance of fragment ArticleContentFragment.
      */
-    public static ArticleContentFragment newInstance(String url, boolean isSaved, boolean showVideo) {
+    public static ArticleContentFragment newInstance(String url, boolean isSaved, boolean showVideo, int videoWidth) {
         ArticleContentFragment fragment = new ArticleContentFragment();
         Bundle args = new Bundle();
         args.putString(ARTICLE_URL, url);
         args.putBoolean(IS_SAVED, isSaved);
         args.putBoolean(SHOW_VIDEO, showVideo);
+        args.putInt(VIDEO_WIDTH, videoWidth);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,6 +82,7 @@ public class ArticleContentFragment extends Fragment {
             articleUrl = getArguments().getString(ARTICLE_URL);
             isArticleSaved = getArguments().getBoolean(IS_SAVED);
             showVideo = getArguments().getBoolean(SHOW_VIDEO);
+            videoWidth = getArguments().getInt(VIDEO_WIDTH);
         }
     }
 
@@ -175,7 +179,7 @@ public class ArticleContentFragment extends Fragment {
     }
 
     private String extractArticle(String result) {
-        return ArticleExtractor.extractArticle(result, showVideo);
+        return ArticleExtractor.extractArticle(result, showVideo, videoWidth);
     }
 
     public class DownloadArticleTask extends DownloadTask {
