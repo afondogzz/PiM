@@ -95,6 +95,9 @@ public class ArticleContentFragment extends Fragment {
             webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebChromeClient(new WebChromeClient() {
             });
+            webView.getSettings().setLoadWithOverviewMode(true);
+            webView.getSettings().setUseWideViewPort(true);
+            webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING);
         }
         if (!isArticleSaved) {
             ConnectivityManager connMgr = (ConnectivityManager)

@@ -16,7 +16,6 @@ public class ArticleExtractor {
 
     public static String extractArticle(String result, boolean showVideo, int videoWidth) {
         String resultHtml;
-        videoWidth = videoWidth - 40;
         Document doc = Jsoup.parse(result);
         Elements heading = doc.select("div[class=heading]");
         heading.select("div[class*=Breadcrumb]").first().text(""); //remove breadcrumbs
@@ -32,16 +31,20 @@ public class ArticleExtractor {
                 String url = iframe.attr("src");
                 iframe.attr("href", url).text("YouTube Video").removeAttr("src");
             }
-        } else {
-            Elements iframes = mainContent.select("iframe");
-            for (Element iframe : iframes) {
-                String width = iframe.attr("width");
-                String height = iframe.attr("height");
-                int ratio = Integer.valueOf(width) / videoWidth;
-                int newHeight = Integer.valueOf(height) * ratio;
-
-            }
         }
+//        } else {
+//            Elements iframes = mainContent.select("iframe");
+//            for (Element iframe : iframes) {
+//                String width = iframe.attr("width");
+//                if (videoWidth < Integer.valueOf(width)) {
+//                    String height = iframe.attr("height");
+//                    int ratio = Integer.valueOf(width) / videoWidth;
+//                    int newHeight = Integer.valueOf(height) * ratio;
+//                    iframe.attr("width", String.valueOf(videoWidth));
+//                    iframe.attr("height", String.valueOf(newHeight));
+//                }
+//            }
+//        }
         resultHtml = heading.html().concat(mainContent.html());
         return resultHtml;
     }
