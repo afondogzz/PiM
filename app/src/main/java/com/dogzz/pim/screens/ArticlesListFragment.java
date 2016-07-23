@@ -8,10 +8,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.ViewTreeObserver;
 import com.dogzz.pim.R;
 import com.dogzz.pim.datahandlers.ArticlesHeadersList;
 import com.dogzz.pim.datahandlers.HeadersList;
@@ -45,6 +47,7 @@ public class ArticlesListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private ConnectivityManager connMgr;
+    private GridLayoutManager lManager;
 
     public ArticlesListFragment() {
         // Required empty public constructor
@@ -77,16 +80,16 @@ public class ArticlesListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (view == null) {
+
             view = inflater.inflate(R.layout.fragment_articles_list, container, false);
             connMgr = (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             mRecyclerView = (RecyclerView) view.findViewById(R.id.my_recycler_view);
-//            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+            lManager = new GridLayoutManager(getActivity(), 1);
+            mRecyclerView.setLayoutManager(lManager);
             headersList = getHeadersListInstance(connMgr);
             int pagesDisplayed = 1;
             headersList.loadArticlesHeaders(pagesDisplayed, true);
-
             mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
@@ -113,9 +116,12 @@ public class ArticlesListFragment extends Fragment {
                     } else if (dy < 0) {//                    onScrolledUp();
                     } else if (dy > 0) {//                    onScrolledDown();
                     }
+                    addAdditionalItemsIfNeeded();
                 }
             });
         }
+
+        repaintList();
         return view;
     }
 
@@ -171,11 +177,6 @@ public class ArticlesListFragment extends Fragment {
         mListener = null;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-
-    }
-
     public void setNavigationItem (NavigationItem navigationItem) {
         if (this.navigationItem != navigationItem) {
             this.navigationItem = navigationItem;
@@ -197,6 +198,23 @@ public class ArticlesListFragment extends Fragment {
     public void notifyDataSetIsChanged() {
         if (headersList != null)
             headersList.notifyDataSetIsChanged();
+    }
+
+    public void repaintList() {
+        final int columns = getResources().getInteger(R.integer.gallery_columns);
+        int scrollPosition = lManager.findFirstCompletelyVisibleItemPosition();
+        lManager.setSpanCount(columns);
+        RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+        mRecyclerView.setAdapter(null);
+        mRecyclerView.setAdapter(adapter);
+        notifyDataSetIsChanged();
+        mRecyclerView.scrollToPosition(scrollPosition);
+    }
+
+    public void addAdditionalItemsIfNeeded() {
+        if (!mRecyclerView.canScrollVertically(-1) && !mRecyclerView.canScrollVertically(1)) {
+            loadNextPageIntoView();
+        }
     }
 
     /**

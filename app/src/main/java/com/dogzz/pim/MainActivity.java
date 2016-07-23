@@ -3,6 +3,7 @@ package com.dogzz.pim;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
+//        progressBar.setProgressTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -274,6 +276,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onJobFinished() {
         progressBar.setVisibility(View.GONE);
+
+    }
+
+    public void onEmptySpaceInList() {
+        if (!isContentVisible) {
+            articlesListFragment.addAdditionalItemsIfNeeded();
+        }
     }
 
     private void switchActionBarToggle(boolean toNavigationDraw) {
@@ -297,6 +306,9 @@ public class MainActivity extends AppCompatActivity
         Locale newLocale = newConfig.locale;
         if (!newLocale.equals(mCurrentLocale)) {
             setLanguageToSelected();
+        }
+        if (articlesListFragment != null) {
+            articlesListFragment.repaintList();
         }
     }
 

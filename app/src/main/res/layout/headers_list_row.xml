@@ -4,7 +4,11 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="4dp"
+                                    android:id="@+id/articlecard"
                                     android:background="@drawable/side_nav_bar"
+                                    cardview:cardBackgroundColor="@color/cardview_light_background"
+                                    cardview:cardCornerRadius="5dp"
+                                    cardview:cardElevation="3dp"
         >
 
     <RelativeLayout
@@ -39,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/articletitle"
                 android:layout_toEndOf="@+id/articleimage"
-                android:maxLines="2"
+                android:maxLines="6"
                 android:padding="4dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"

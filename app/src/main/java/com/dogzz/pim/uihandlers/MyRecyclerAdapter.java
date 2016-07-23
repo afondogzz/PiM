@@ -2,6 +2,7 @@ package com.dogzz.pim.uihandlers;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.dogzz.pim.MainActivity;
 import com.dogzz.pim.R;
 import com.dogzz.pim.dataobject.ArticleHeader;
 import it.sephiroth.android.library.picasso.Picasso;
@@ -60,8 +62,9 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         } else {
             customViewHolder.isSavedImage.setVisibility(View.GONE);
         }
+        boolean showDescription = mContext.getResources().getBoolean(R.bool.show_description);
 
-        if (header.getType() == 1) {
+        if (header.getType() == 1 || showDescription) {
             customViewHolder.articleSubTitle.setVisibility(View.VISIBLE);
             customViewHolder.articleSubTitle.setText(header.getSubTitle());
         } else {
@@ -70,11 +73,13 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         }
 
         if(selectedPosition == position){
-            customViewHolder.articleTitle.setBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
-            customViewHolder.articleTitle.setTextColor(Color.WHITE);
-            customViewHolder.articleSubTitle.setTextColor(Color.WHITE);
+//            customViewHolder.articleTitle.setBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
+//            customViewHolder.articleTitle.setTextColor(Color.WHITE);
+//            customViewHolder.articleSubTitle.setTextColor(Color.WHITE);
+            customViewHolder.articleCard.setCardBackgroundColor(mContext.getResources().getColor(R.color.colorAccent));
         }else{
-            customViewHolder.articleTitle.setBackgroundColor(Color.TRANSPARENT);
+//            customViewHolder.articleTitle.setBackgroundColor(Color.TRANSPARENT);
+            customViewHolder.articleCard.setCardBackgroundColor(mContext.getResources().getColor(R.color.cardview_light_background));
             if (header.isRead()) {
                 customViewHolder.articleTitle.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
                 customViewHolder.articleSubTitle.setTextColor(mContext.getResources().getColor(R.color.textColorGrayed));
@@ -107,9 +112,11 @@ public class MyRecyclerAdapter  extends RecyclerView.Adapter<MyRecyclerAdapter.C
         ImageView isSavedImage;
         TextView articleTitle;
         TextView articleSubTitle;
+        CardView articleCard;
 
         CustomViewHolder(View view) {
             super(view);
+            this.articleCard = (CardView) view.findViewById(R.id.articlecard);
             this.articleImage = (ImageView) view.findViewById(R.id.articleimage);
             this.isSavedImage = (ImageView) view.findViewById(R.id.issaved);
             this.articleTitle = (TextView) view.findViewById(R.id.articletitle);
