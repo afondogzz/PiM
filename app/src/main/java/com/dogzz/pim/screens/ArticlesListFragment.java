@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.view.ViewTreeObserver;
+import android.widget.TextView;
 import com.dogzz.pim.R;
 import com.dogzz.pim.datahandlers.ArticlesHeadersList;
 import com.dogzz.pim.datahandlers.HeadersList;
