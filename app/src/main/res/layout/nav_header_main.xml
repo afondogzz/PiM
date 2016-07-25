@@ -26,7 +26,7 @@
             android:layout_height="match_parent"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
             android:text="@string/run_fools"
-            android:textAppearance="@android:style/TextAppearance.Material.Widget.ActionBar.Menu"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Menu"
             android:gravity="center_vertical"
             android:paddingLeft="16dp"/>
 
