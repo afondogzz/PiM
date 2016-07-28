@@ -26,7 +26,7 @@ import static android.support.test.espresso.Espresso.*;
 import static com.dogzz.pim.screens.UIElement.*;
 
 /**
- * Set of acceptance tests
+ * Set of acceptance tests with Espresso
  * Created by afon on 26.07.2016.
  */
 @RunWith(AndroidJUnit4.class)
