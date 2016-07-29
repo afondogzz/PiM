@@ -21,14 +21,6 @@ public class UIObjects {
     public static final String MAIN_PACKAGE = "com.dogzz.pim";
     public static final String ID = MAIN_PACKAGE + ":id/";
 
-    public static ViewInteraction articlesMenu = onView(allOf(withText(R.string.articles), withId(R.id.design_menu_item_text)));
-    public static ViewInteraction newsMenu = onView(allOf(withText(R.string.news), withId(R.id.design_menu_item_text)));
-    public static ViewInteraction savedMenu = onView(allOf(withText(R.string.saved), withId(R.id.design_menu_item_text)));
-    public static ViewInteraction downloadAction = onView(withId(R.id.action_download));
-    public static ViewInteraction deleteAction = onView(withId(R.id.action_delete));
-    public static ViewInteraction refreshAction = onView(withId(R.id.action_refresh));
-    public static ViewInteraction articlesList = onView(withId(R.id.my_recycler_view));
-
     public UIObjects(UiDevice mDevice, Context context) {
         this.mDevice = mDevice;
         this.context = context;
